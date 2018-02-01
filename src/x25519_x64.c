@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <string.h>
 #include <fp25519_x64.h>
 #include <table_ladder_x25519.h>
 #include "rfc7748_precompted.h"
@@ -47,11 +48,12 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	ALIGN uint64_t buffer[4*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint64_t coordinates[4*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint64_t workspace[6*NUM_WORDS_ELTFP25519_X64];
+	ALIGN uint8_t session[X25519_KEYSIZE_BYTES];
 	uint64_t save=0;
 
 	int i=0, j=0;
 	uint64_t prev = 0;
-	uint64_t *const X1 = (uint64_t*)session_key;
+	uint64_t *const X1 = (uint64_t*)session;
 	uint64_t *const key = (uint64_t*)private_key;
 	uint64_t *const Px = coordinates+0;
 	uint64_t *const Pz = coordinates+4;
@@ -76,6 +78,8 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	uint64_t *const buffer_1w = buffer;
 	uint64_t *const buffer_2w = buffer;
 
+	memcpy(session, session_key, sizeof(session));
+
 	/* clampC function */
 	save = private_key[X25519_KEYSIZE_BYTES-1]<<16 | private_key[0];
 	private_key[0] = private_key[0] & (~(uint8_t)0x7);
@@ -89,9 +93,9 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	* reserve the sign bit for use in other protocols and to
 	* increase resistance to implementation fingerprinting
 	**/
-	session_key[X25519_KEYSIZE_BYTES-1] &= (1<<(255%8))-1;
+	session[X25519_KEYSIZE_BYTES-1] &= (1<<(255%8))-1;
 
-	copy_EltFp25519_1w_x64(Px,(uint64_t*)session_key);
+	copy_EltFp25519_1w_x64(Px,(uint64_t*)session);
 	setzero_EltFp25519_1w_x64(Pz);
 	setzero_EltFp25519_1w_x64(Qx);
 	setzero_EltFp25519_1w_x64(Qz);
