@@ -49,12 +49,12 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	ALIGN uint64_t coordinates[4*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint64_t workspace[6*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint8_t session[X25519_KEYSIZE_BYTES];
-	uint64_t save=0;
+	ALIGN uint8_t private[X25519_KEYSIZE_BYTES];
 
 	int i=0, j=0;
 	uint64_t prev = 0;
 	uint64_t *const X1 = (uint64_t*)session;
-	uint64_t *const key = (uint64_t*)private_key;
+	uint64_t *const key = (uint64_t*)private;
 	uint64_t *const Px = coordinates+0;
 	uint64_t *const Pz = coordinates+4;
 	uint64_t *const Qx = coordinates+8;
@@ -78,12 +78,12 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	uint64_t *const buffer_1w = buffer;
 	uint64_t *const buffer_2w = buffer;
 
+	memcpy(private, private_key, sizeof(private));
 	memcpy(session, session_key, sizeof(session));
 
 	/* clampC function */
-	save = private_key[X25519_KEYSIZE_BYTES-1]<<16 | private_key[0];
-	private_key[0] = private_key[0] & (~(uint8_t)0x7);
-	private_key[X25519_KEYSIZE_BYTES-1] = (uint8_t)64 | (private_key[X25519_KEYSIZE_BYTES-1] & (uint8_t)0x7F);
+	private[0] = private[0] & (~(uint8_t)0x7);
+	private[X25519_KEYSIZE_BYTES-1] = (uint8_t)64 | (private[X25519_KEYSIZE_BYTES-1] & (uint8_t)0x7F);
 
 	/**
 	* As in the draft:
@@ -143,8 +143,6 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 	inv_EltFp25519_1w_x64(A, Qz);
 	mul_EltFp25519_1w_x64((uint64_t*)shared,Qx,A);
 	fred_EltFp25519_1w_x64((uint64_t *) shared);
-	private_key[X25519_KEYSIZE_BYTES-1] = (uint8_t)((save>>16) & 0xFF);
-	private_key[0]  = (uint8_t)(save & 0xFF);
 }
 
 static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key)
@@ -152,10 +150,10 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key)
 	ALIGN uint64_t buffer[4*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint64_t coordinates[4*NUM_WORDS_ELTFP25519_X64];
 	ALIGN uint64_t workspace[4*NUM_WORDS_ELTFP25519_X64];
-	uint64_t save;
+	ALIGN uint8_t private[X25519_KEYSIZE_BYTES];
 
 	int i=0, j=0, k=0;
-	uint64_t *const key = (uint64_t*)private_key;
+	uint64_t *const key = (uint64_t*)private;
 	uint64_t *const Ur1 = coordinates+0;
 	uint64_t *const Zr1 = coordinates+4;
 	uint64_t *const Ur2 = coordinates+8;
@@ -176,10 +174,11 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key)
 	uint64_t *const buffer_2w = buffer;
 	uint64_t * P = (uint64_t *)Table_Ladder_8k;
 
+	memcpy(private, private_key, sizeof(private));
+
 	/* clampC function */
-	save = private_key[X25519_KEYSIZE_BYTES-1]<<16 | private_key[0];
-    private_key[0] = private_key[0] & (~(uint8_t)0x7);
-    private_key[X25519_KEYSIZE_BYTES-1] = (uint8_t)64 | (private_key[X25519_KEYSIZE_BYTES-1] & (uint8_t)0x7F);
+	private[0] = private[0] & (~(uint8_t)0x7);
+	private[X25519_KEYSIZE_BYTES-1] = (uint8_t)64 | (private[X25519_KEYSIZE_BYTES-1] & (uint8_t)0x7F);
 
 	setzero_EltFp25519_1w_x64(Ur1);
 	setzero_EltFp25519_1w_x64(Zr1);
@@ -240,8 +239,6 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key)
 	inv_EltFp25519_1w_x64(A, Zr1);
 	mul_EltFp25519_1w_x64((uint64_t*)session_key,Ur1,A);
 	fred_EltFp25519_1w_x64((uint64_t *) session_key);
-    private_key[X25519_KEYSIZE_BYTES-1] = (uint8_t)((save>>16) & 0xFF);
-    private_key[0]  = (uint8_t)(save & 0xFF);
 }
 
 const KeyGen X25519_KeyGen_x64 = x25519_keygen_precmp_x64;
