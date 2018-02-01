@@ -95,7 +95,7 @@ Benchmark performance on 64-bit Intel architectures (table entries are clock cyc
 ----
 
 ### License 
-GNU Lesser General Public License v3.0 ([LICENSE](https://www.gnu.org/licenses/lgpl-3.0.txt))
+GNU Lesser General Public License v2+ ([LICENSE](https://www.gnu.org/licenses/lgpl-2.1.txt))
 
 ----
 
