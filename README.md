@@ -28,16 +28,19 @@ To cite this work use:
 ```tex
 @inproceedings{oliveira_sac2017,
     author = {Thomaz Oliveira and Julio L\'opez and H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and Francisco Rodr\'iguez-Henr\'iquez},
+    editor="Adams, Carlisle and Camenisch, Jan",
     title = {How to (pre-)compute a ladder},
     booktitle = {Selected Areas in Cryptography – SAC 2017: 24th International Conference, Ottawa, Ontario, Canada, August 16 - 18, 2017, Revised Selected Papers},
-    year = {2017},
-	publisher = {Springer International Publishing},
+    year = {2018},
+    publisher = {Springer International Publishing},
+    pages = "172-191",
+    doi = {10.1007/978-3-319-72565-9_9},
 }
 ```
 ----
 
 ### Implementation Details
- * Prime field arithmetic is optimized for the 4th  and 6th generation of Intel Core processors (Haswell and Skylake micro-architectures).
+ * Prime field arithmetic is optimized for the 4th and 6th generation of Intel Core processors (Haswell and Skylake micro-architectures).
  * Efficient integer multiplication using MULX instruction.
  * Integer additions accelerated with ADCX/ADOX instructions.
  * Key generation uses a read-only table of 8 KB (25 KB) for X25519 (X448).
