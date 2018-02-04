@@ -16,10 +16,12 @@ This source code is part of the research work titled: _"How to (pre-)compute a l
 
 ### Research Resources
 
-A peer-reviewed paper was presented in the 24th Annual Conference on Selected Areas in Cryptography ([SAC2017](http://sacworkshop.org/SAC17/SAC2017.htm)). Slides [[PDF](http://www.ic.unicamp.br/~ra142685/userfiles/papers/oliveira_sac2017.pdf)].
+A peer-reviewed paper was presented in the 24th Annual Conference on Selected Areas in Cryptography ([SAC2017](http://sacworkshop.org/SAC17/SAC2017.htm)). 
+ [[DOI](http://doi.org/10.1007/978-3-319-72565-9_9)] 
+Slides [[PDF](http://www.ic.unicamp.br/~ra142685/userfiles/papers/oliveira_sac2017.pdf)].
 
 A pre-print of this document can be found at the IACR ePrint Archive: 
- [http://iacr.eprint.org/2017/264](https://eprint.iacr.org/2017/264) [[PDF](https://eprint.iacr.org/2017/264.pdf)}
+ [http://iacr.eprint.org/2017/264](https://eprint.iacr.org/2017/264) [[PDF](https://eprint.iacr.org/2017/264.pdf)]
 
 
 
@@ -28,13 +30,13 @@ To cite this work use:
 ```tex
 @inproceedings{oliveira_sac2017,
     author = {Thomaz Oliveira and Julio L\'opez and H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and Francisco Rodr\'iguez-Henr\'iquez},
-    editor="Adams, Carlisle and Camenisch, Jan",
-    title = {How to (pre-)compute a ladder},
+    editor = {Adams, Carlisle and Camenisch, Jan},
+    title  = {How to (pre-)compute a ladder},
     booktitle = {Selected Areas in Cryptography – SAC 2017: 24th International Conference, Ottawa, Ontario, Canada, August 16 - 18, 2017, Revised Selected Papers},
-    year = {2018},
+    year   = {2018},
     publisher = {Springer International Publishing},
-    pages = "172-191",
-    doi = {10.1007/978-3-319-72565-9_9},
+    pages  = "172-191",
+    doi    = {10.1007/978-3-319-72565-9_9},
 }
 ```
 ----

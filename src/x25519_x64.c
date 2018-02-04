@@ -2,6 +2,9 @@
  * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
  * Institute of Computing.
  * University of Campinas, Brazil.
+ *
+ * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+ * Copyright (C) 2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
  * 
  * This program is free software: you can redistribute it and/or modify  
  * it under the terms of the GNU Lesser General Public License as   
@@ -43,6 +46,7 @@ static inline void cswap_x64(uint64_t bit, uint64_t *const px, uint64_t *const p
     }
 }
 
+/* Modular reduction by Samuel Neves */
 static inline void reduce_point_mod_2_255_19(uint64_t *p)
 {
     __asm__ __volatile__(
