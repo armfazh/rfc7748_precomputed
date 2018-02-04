@@ -713,7 +713,7 @@ void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a)
 
 inline void add_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b)
 {
-#ifndef __ADX__
+#ifdef __ADX__
 	__asm__ __volatile__(
     "clc                \n\t"
 	"movq   (%2),  %%r8 \n\t"
