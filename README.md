@@ -82,6 +82,19 @@ For running a sample program use:
 ```
 ----
 
+### Runing Fuzzer
+Once compilation was done, you can run a fuzz test.
+Follow the instructions in the Makefile in `apps/fuzz` folder. 
+```sh
+ $ cd apps/fuzz
+ $ make
+ $ ./fuzzer
+```
+The program will stop until it founds an error.
+
+
+----
+
 ### Timings 
 Benchmark performance on 64-bit Intel architectures (table entries are clock cycles).
 
