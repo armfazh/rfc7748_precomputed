@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
+ * Institute of Computing.
+ * University of Campinas, Brazil.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, version 2 or greater.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 #ifndef CLOCKS_H
 #define CLOCKS_H
 
@@ -74,9 +91,9 @@
     end_c = cycles_now();                                    \
                                                              \
     printf("%3lu µs, %8.1f oper/s, %6lu cycles/op\n",        \
-           (unsigned long)((end - start) / iterations),      \
+           (uint64_t)((end - start) / iterations),      \
            iterations*(double)1e6 / (end - start),           \
-           (unsigned long)((end_c - start_c) / iterations)); \
+           (uint64_t)((end_c - start_c) / iterations)); \
   } while (0)
 
 uint64_t time_now();

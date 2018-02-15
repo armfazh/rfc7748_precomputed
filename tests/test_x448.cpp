@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
+ * Institute of Computing.
+ * University of Campinas, Brazil.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, version 2 or greater.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <gtest/gtest.h>
 #include <rfc7748_precomputed.h>
 #include "random.h"
@@ -7,7 +24,8 @@
 static std::ostream &operator<<(std::ostream &os, const X448_KEY &key) {
   int i = 0;
   for (i = 0; i < X448_KEYSIZE_BYTES; i++) {
-    os << std::setbase(16) << std::setfill('0') << std::setw(2) << (int)key[i];
+    os << std::setbase(16) << std::setfill('0') << std::setw(2)
+       << static_cast<int>(key[i]);
   }
   return os << std::endl;
 }

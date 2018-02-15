@@ -23,8 +23,8 @@
  * @param a Two 256-bit integers: a[0:3] and a[4:7]
  * @param b Two 256-bit integers: b[0:3] and b[4:7]
  */
-void mul2_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b)
-{
+void mul2_256x256_integer_x64(uint64_t *const c, uint64_t *const a,
+                              uint64_t *const b) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -200,8 +200,7 @@ void mul2_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *co
  * @param c
  * @param a
  */
-void sqr2_256x256_integer_x64(uint64_t *const c, uint64_t *const a)
-{
+void sqr2_256x256_integer_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
   __asm__ __volatile__(
     "movq  (%1), %%rdx        ; " /* A[0]   */
@@ -340,8 +339,7 @@ void sqr2_256x256_integer_x64(uint64_t *const c, uint64_t *const a)
  * @param c
  * @param a
  */
-void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a)
-{
+void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -450,8 +448,8 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a)
 #endif
 }
 
-void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b)
-{
+void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a,
+                             uint64_t *const b) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -547,8 +545,7 @@ void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *con
 #endif
 }
 
-void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a)
-{
+void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
   __asm__ __volatile__(
     "movq  (%1), %%rdx        ; " /* A[0]   */
@@ -622,8 +619,7 @@ void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a)
 #endif
 }
 
-void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a)
-{
+void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -689,8 +685,8 @@ void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a)
 #endif
 }
 
-inline void add_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b)
-{
+inline void add_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a,
+                                  uint64_t *const b) {
 #ifdef __ADX__
   __asm__ __volatile__(
     "clc                ;"
@@ -746,9 +742,9 @@ inline void add_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t
 #endif
 }
 
-inline void sub_EltFp25519_1w_x64(uint64_t *const __restrict c, uint64_t *const __restrict a,
-                  uint64_t *const __restrict b)
-{
+inline void sub_EltFp25519_1w_x64(uint64_t *const __restrict c,
+                                  uint64_t *const __restrict a,
+                                  uint64_t *const __restrict b) {
   __asm__ __volatile__(
     "movq   (%1),  %%r8 ;"
     "movq  8(%1),  %%r9 ;"
@@ -775,8 +771,7 @@ inline void sub_EltFp25519_1w_x64(uint64_t *const __restrict c, uint64_t *const 
   );
 }
 
-inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a)
-{
+inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
   /**
    * a24 = (A+2)/4 = (486662+2)/4 = 121666
@@ -815,12 +810,10 @@ inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a)
 #endif
 }
 
-void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA)
-{
-#define sqrn_EltFp25519_1w_x64(a,times)\
+void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA) {
+#define sqrn_EltFp25519_1w_x64(a, times)\
   counter = times;\
-  while(counter-- > 0)\
-  {\
+  while ( counter-- > 0) {\
       sqr_EltFp25519_1w_x64(a);\
   }
 
@@ -835,41 +828,40 @@ void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA)
   T[3] = x2;
   T[4] = pA; /* x */
 
-  copy_EltFp25519_1w_x64(T[1],pA);
-  sqrn_EltFp25519_1w_x64(T[1],1);
-  copy_EltFp25519_1w_x64(T[2],T[1]);
-  sqrn_EltFp25519_1w_x64(T[2],2);
+  copy_EltFp25519_1w_x64(T[1], pA);
+  sqrn_EltFp25519_1w_x64(T[1], 1);
+  copy_EltFp25519_1w_x64(T[2], T[1]);
+  sqrn_EltFp25519_1w_x64(T[2], 2);
   mul_EltFp25519_1w_x64(T[0], pA, T[2]);
   mul_EltFp25519_1w_x64(T[1], T[1], T[0]);
-  copy_EltFp25519_1w_x64(T[2],T[1]);
-  sqrn_EltFp25519_1w_x64(T[2],1);
+  copy_EltFp25519_1w_x64(T[2], T[1]);
+  sqrn_EltFp25519_1w_x64(T[2], 1);
   mul_EltFp25519_1w_x64(T[0], T[0], T[2]);
-  copy_EltFp25519_1w_x64(T[2],T[0]);
-  sqrn_EltFp25519_1w_x64(T[2],5);
+  copy_EltFp25519_1w_x64(T[2], T[0]);
+  sqrn_EltFp25519_1w_x64(T[2], 5);
   mul_EltFp25519_1w_x64(T[0], T[0], T[2]);
-  copy_EltFp25519_1w_x64(T[2],T[0]);
-  sqrn_EltFp25519_1w_x64(T[2],10);
+  copy_EltFp25519_1w_x64(T[2], T[0]);
+  sqrn_EltFp25519_1w_x64(T[2], 10);
   mul_EltFp25519_1w_x64(T[2], T[2], T[0]);
-  copy_EltFp25519_1w_x64(T[3],T[2]);
-  sqrn_EltFp25519_1w_x64(T[3],20);
+  copy_EltFp25519_1w_x64(T[3], T[2]);
+  sqrn_EltFp25519_1w_x64(T[3], 20);
   mul_EltFp25519_1w_x64(T[3], T[3], T[2]);
-  sqrn_EltFp25519_1w_x64(T[3],10);
+  sqrn_EltFp25519_1w_x64(T[3], 10);
   mul_EltFp25519_1w_x64(T[3], T[3], T[0]);
-  copy_EltFp25519_1w_x64(T[0],T[3]);
-  sqrn_EltFp25519_1w_x64(T[0],50);
+  copy_EltFp25519_1w_x64(T[0], T[3]);
+  sqrn_EltFp25519_1w_x64(T[0], 50);
   mul_EltFp25519_1w_x64(T[0], T[0], T[3]);
-  copy_EltFp25519_1w_x64(T[2],T[0]);
-  sqrn_EltFp25519_1w_x64(T[2],100);
+  copy_EltFp25519_1w_x64(T[2], T[0]);
+  sqrn_EltFp25519_1w_x64(T[2], 100);
   mul_EltFp25519_1w_x64(T[2], T[2], T[0]);
-  sqrn_EltFp25519_1w_x64(T[2],50);
+  sqrn_EltFp25519_1w_x64(T[2], 50);
   mul_EltFp25519_1w_x64(T[2], T[2], T[3]);
-  sqrn_EltFp25519_1w_x64(T[2],5);
+  sqrn_EltFp25519_1w_x64(T[2], 5);
   mul_EltFp25519_1w_x64(T[1], T[1], T[2]);
 #undef sqrn_EltFp25519_1w_x64
 }
 
-inline void fred_EltFp25519_1w_x64(uint64_t *const c)
-{
+inline void fred_EltFp25519_1w_x64(uint64_t *const c) {
   int64_t last = (((int64_t*)c)[3])>>63;
   c[3] &= ((uint64_t)1<<63)-1;
   c[0] += 19 & last;

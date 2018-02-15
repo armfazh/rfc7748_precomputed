@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
+ * Institute of Computing.
+ * University of Campinas, Brazil.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, version 2 or greater.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 #include <fp25519_x64.h>
 #include <gtest/gtest.h>
 #include "random.h"
@@ -5,7 +22,7 @@
 #define TEST_TIMES 50000
 
 static void random_EltFp25519_1w_x64(uint64_t *A) {
-  random_bytes((uint8_t *)A, SIZE_BYTES_FP25519);
+  random_bytes(reinterpret_cast<uint8_t *>(A), SIZE_BYTES_FP25519);
 }
 
 /* Verifies that (a^2-b^2) == (a+b)(a-b) */

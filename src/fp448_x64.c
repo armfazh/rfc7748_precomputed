@@ -17,8 +17,7 @@
 */
 #include "fp448_x64.h"
 
-void mul_448x448_integer_x64(uint64_t * c, uint64_t * a, uint64_t * b)
-{
+void mul_448x448_integer_x64(uint64_t * c, uint64_t * a, uint64_t * b) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -234,8 +233,7 @@ void mul_448x448_integer_x64(uint64_t * c, uint64_t * a, uint64_t * b)
 #endif
 }
 
-void sqr_448x448_integer_x64(uint64_t * c, uint64_t * a)
-{
+void sqr_448x448_integer_x64(uint64_t * c, uint64_t * a) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
@@ -479,8 +477,7 @@ void sqr_448x448_integer_x64(uint64_t * c, uint64_t * a)
 #endif
 }
 
-void red_EltFp448_1w_x64(uint64_t * c, uint64_t * a)
-{
+void red_EltFp448_1w_x64(uint64_t * c, uint64_t * a) {
 #if __ADX__
   __asm__ __volatile__ (
     /* [c13,c12,c11,c10] mod p  */
@@ -615,8 +612,7 @@ void red_EltFp448_1w_x64(uint64_t * c, uint64_t * a)
 #endif
 }
 
-inline void add_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b)
-{
+inline void add_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b) {
 #if __ADX__
   __asm__ __volatile__(
     "movq    (%2),  %%rax ;"
@@ -691,8 +687,7 @@ inline void add_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b)
 #endif
 }
 
-inline void sub_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b)
-{
+inline void sub_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b) {
   __asm__ __volatile__(
     "movq   (%1),  %%rax ;"
     "movq  8(%1),  %%rcx ;"
@@ -729,8 +724,7 @@ inline void sub_EltFp448_1w_x64(uint64_t * c, uint64_t * a, uint64_t * b)
   );
 }
 
-void mul_a24_EltFp448_1w_x64(uint64_t * c, uint64_t * a)
-{
+void mul_a24_EltFp448_1w_x64(uint64_t * c, uint64_t * a) {
 #ifdef __BMI2__
   /**
   * a24 = (A+2)/4 = (156326+2)/4 = 39082
@@ -775,18 +769,16 @@ void mul_a24_EltFp448_1w_x64(uint64_t * c, uint64_t * a)
  * @param pA
  * @param only_inverse
  */
-void inv_EltFp448_1w_x64(uint64_t * __restrict pC, uint64_t * __restrict pA)
-{
-#define sqrn_EltFp448_1w_x64(a,times)\
+void inv_EltFp448_1w_x64(uint64_t *__restrict pC, uint64_t *__restrict pA) {
+#define sqrn_EltFp448_1w_x64(a, times)\
   counter = times;\
-  while(counter-- > 0)\
-  {\
+  while (counter-- > 0) {\
       sqr_EltFp448_1w_x64(a);\
   }
 
-  EltFp448_1w_x64 x0,x1;
-  uint64_t * T[4];
-  unsigned int counter=0;
+  EltFp448_1w_x64 x0, x1;
+  uint64_t *T[4];
+  unsigned int counter = 0;
   EltFp448_1w_Buffer_x64 buffer_1w;
 
   T[0] = x0;
@@ -794,67 +786,66 @@ void inv_EltFp448_1w_x64(uint64_t * __restrict pC, uint64_t * __restrict pA)
   T[2] = x1;
   T[3] = pA;
 
-  copy_EltFp448_1w_x64(T[1],T[3]);
-  sqrn_EltFp448_1w_x64(T[1],1);
-  mul_EltFp448_1w_x64(T[1],T[1],T[3]);
+  copy_EltFp448_1w_x64(T[1], T[3]);
+  sqrn_EltFp448_1w_x64(T[1], 1);
+  mul_EltFp448_1w_x64(T[1], T[1], T[3]);
 
-  copy_EltFp448_1w_x64(T[0],T[1]);
-  sqrn_EltFp448_1w_x64(T[0],1);
-  mul_EltFp448_1w_x64(T[0],T[0],T[3]);
+  copy_EltFp448_1w_x64(T[0], T[1]);
+  sqrn_EltFp448_1w_x64(T[0], 1);
+  mul_EltFp448_1w_x64(T[0], T[0], T[3]);
 
-  copy_EltFp448_1w_x64(T[1],T[0]);
-  sqrn_EltFp448_1w_x64(T[1],3);
-  mul_EltFp448_1w_x64(T[1],T[1],T[0]);
+  copy_EltFp448_1w_x64(T[1], T[0]);
+  sqrn_EltFp448_1w_x64(T[1], 3);
+  mul_EltFp448_1w_x64(T[1], T[1], T[0]);
 
-  copy_EltFp448_1w_x64(T[2],T[1]);
-  sqrn_EltFp448_1w_x64(T[2],6);
-  mul_EltFp448_1w_x64(T[2],T[2],T[1]);
+  copy_EltFp448_1w_x64(T[2], T[1]);
+  sqrn_EltFp448_1w_x64(T[2], 6);
+  mul_EltFp448_1w_x64(T[2], T[2], T[1]);
 
-  copy_EltFp448_1w_x64(T[1],T[2]);
-  sqrn_EltFp448_1w_x64(T[1],12);
-  mul_EltFp448_1w_x64(T[1],T[1],T[2]);
+  copy_EltFp448_1w_x64(T[1], T[2]);
+  sqrn_EltFp448_1w_x64(T[1], 12);
+  mul_EltFp448_1w_x64(T[1], T[1], T[2]);
 
-  sqrn_EltFp448_1w_x64(T[1],3);
-  mul_EltFp448_1w_x64(T[1],T[1],T[0]);
+  sqrn_EltFp448_1w_x64(T[1], 3);
+  mul_EltFp448_1w_x64(T[1], T[1], T[0]);
 
-  copy_EltFp448_1w_x64(T[2],T[1]);
-  sqrn_EltFp448_1w_x64(T[2],27);
-  mul_EltFp448_1w_x64(T[2],T[2],T[1]);
+  copy_EltFp448_1w_x64(T[2], T[1]);
+  sqrn_EltFp448_1w_x64(T[2], 27);
+  mul_EltFp448_1w_x64(T[2], T[2], T[1]);
 
-  copy_EltFp448_1w_x64(T[1],T[2]);
-  sqrn_EltFp448_1w_x64(T[1],54);
-  mul_EltFp448_1w_x64(T[1],T[1],T[2]);
+  copy_EltFp448_1w_x64(T[1], T[2]);
+  sqrn_EltFp448_1w_x64(T[1], 54);
+  mul_EltFp448_1w_x64(T[1], T[1], T[2]);
 
-  sqrn_EltFp448_1w_x64(T[1],3);
-  mul_EltFp448_1w_x64(T[1],T[1],T[0]);
+  sqrn_EltFp448_1w_x64(T[1], 3);
+  mul_EltFp448_1w_x64(T[1], T[1], T[0]);
 
-  copy_EltFp448_1w_x64(T[2],T[1]);
-  sqrn_EltFp448_1w_x64(T[2],111);
-  mul_EltFp448_1w_x64(T[2],T[2],T[1]);
+  copy_EltFp448_1w_x64(T[2], T[1]);
+  sqrn_EltFp448_1w_x64(T[2], 111);
+  mul_EltFp448_1w_x64(T[2], T[2], T[1]);
 
-  copy_EltFp448_1w_x64(T[1],T[2]);
-  sqrn_EltFp448_1w_x64(T[1],1);
-  mul_EltFp448_1w_x64(T[1],T[1],T[3]);
+  copy_EltFp448_1w_x64(T[1], T[2]);
+  sqrn_EltFp448_1w_x64(T[1], 1);
+  mul_EltFp448_1w_x64(T[1], T[1], T[3]);
 
-  sqrn_EltFp448_1w_x64(T[1],223);
-  mul_EltFp448_1w_x64(T[1],T[1],T[2]);
+  sqrn_EltFp448_1w_x64(T[1], 223);
+  mul_EltFp448_1w_x64(T[1], T[1], T[2]);
 
-  sqrn_EltFp448_1w_x64(T[1],2);
-  mul_EltFp448_1w_x64(T[1],T[1],T[3]);
+  sqrn_EltFp448_1w_x64(T[1], 2);
+  mul_EltFp448_1w_x64(T[1], T[1], T[3]);
 
 #undef sqrn_EltFp448_1w_x64
 }
 
-void fred_EltFp448_1w_x64(uint64_t * c)
-{
+void fred_EltFp448_1w_x64(uint64_t *c) {
   EltFp448_1w_x64 p = {
-    0xffffffffffffffff,
-    0xffffffffffffffff,
-    0xffffffffffffffff,
-    0xfffffffeffffffff,
-    0xffffffffffffffff,
-    0xffffffffffffffff,
-    0xffffffffffffffff
+      0xffffffffffffffff,
+      0xffffffffffffffff,
+      0xffffffffffffffff,
+      0xfffffffeffffffff,
+      0xffffffffffffffff,
+      0xffffffffffffffff,
+      0xffffffffffffffff
   };
-  sub_EltFp448_1w_x64(c,c,p);
+  sub_EltFp448_1w_x64(c, c, p);
 }
