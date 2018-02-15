@@ -51,7 +51,7 @@ To cite this work use:
 ----
 
 ### Compilation
-Clone repository and configure project using the [CMake](https://cmake.org/) tool:
+First, clone the repository and configure project using the [CMake](https://cmake.org/) tool:
 
 ```sh
  $ git clone https://github.com/armfazh/rfc7748_precomputed
@@ -59,15 +59,29 @@ Clone repository and configure project using the [CMake](https://cmake.org/) too
  $ mkdir build
  $ cd build
 ```
-You can specify the compiler as follows:
+
+To specify an alternative C/C++ compiler can be set as follows:
+
 ```sh
- $ CC=gcc cmake ..
- $ make
+ $ CC=gcc CXX=g++ cmake ..
+```
+
+Also, to specify a custom install directory use:
+
+```sh
+ $ cmake -DCMAKE_INSTALL_PREFIX=install_dir ..
+```
+
+Finally, compile and install:
+
+```sh
+ $ make 
+ $ make install (optional)
 ```
 
 ----
 
-### Runing Companion Programs
+### Running Companion Programs
 Once compilation was done, you can run three companion programs. For running the benchmark program use:
 ```sh
  $ bin/bench
@@ -80,22 +94,11 @@ For running the tests program use:
 
 For running a sample program use:
 ```sh
- $ bin/samples
+ $ bin/sample_x25519
+ $ bin/sample_x448
 ```
 ----
 
-### Runing Fuzzer
-Once compilation was done, you can run a fuzz test.
-Follow the instructions in the Makefile in `apps/fuzz` folder. 
-```sh
- $ cd apps/fuzz
- $ make
- $ ./fuzzer
-```
-The program will stop until it founds an error.
-
-
-----
 
 ### Timings 
 Benchmark performance on 64-bit Intel architectures (table entries are clock cycles).

@@ -15,24 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "bytes.h"
-#include "random.h"
 #include "fp448_x64.h"
-
-void random_EltFp448_1w_x64(uint64_t *A)
-{
-	random_bytes((uint8_t*)A,SIZE_ELEMENT_BYTES);
-}
-
-int compare_EltFp448_1w_x64(uint64_t *A, uint64_t *B)
-{
-	return compare_bytes((uint8_t*)A,(uint8_t*)B,SIZE_ELEMENT_BYTES);
-}
-
-void print_EltFp448_1w_x64(uint64_t *A)
-{
-	print_bytes((uint8_t*)A,SIZE_ELEMENT_BYTES);
-}
 
 void mul_448x448_integer_x64(uint64_t * c, uint64_t * a, uint64_t * b)
 {

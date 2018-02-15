@@ -15,25 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-#include "random.h"
-#include "bytes.h"
 #include "fp25519_x64.h"
-
-void random_EltFp25519_1w_x64(uint64_t *A)
-{
-	random_bytes((uint8_t*)A,SIZE_ELEMENT_BYTES);
-	A[3] &= ((uint64_t)1<<63)-1;
-}
-
-int compare_EltFp25519_1w_x64(uint64_t *A, uint64_t *B)
-{
-	return compare_bytes((uint8_t*)A,(uint8_t*)B,SIZE_ELEMENT_BYTES);
-}
-
-void print_EltFp25519_1w_x64(uint64_t *A)
-{
-	print_bytes((uint8_t*)A,SIZE_ELEMENT_BYTES);
-}
 
 /**
  *
@@ -897,4 +879,3 @@ inline void fred_EltFp25519_1w_x64(uint64_t *const c)
 	c[3] &= ((uint64_t)1<<63)-1;
 	c[0] += 19 & last;
 }
-

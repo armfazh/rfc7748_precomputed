@@ -20,11 +20,16 @@
 
 #include <stdint.h>
 
+#ifndef ALIGN_BYTES
 #define ALIGN_BYTES 32
+#endif
+
+#ifndef ALIGN
 #ifdef __INTEL_COMPILER
 #define ALIGN __declspec(align(ALIGN_BYTES))
 #else
-#define ALIGN __attribute__ ((aligned (ALIGN_BYTES)))
+#define ALIGN __attribute__((aligned(ALIGN_BYTES)))
+#endif
 #endif
 
 #define X25519_KEYSIZE_BYTES 32
@@ -32,18 +37,15 @@ typedef ALIGN uint8_t X25519_KEY[X25519_KEYSIZE_BYTES];
 #define X448_KEYSIZE_BYTES 56
 typedef ALIGN uint8_t X448_KEY[X448_KEYSIZE_BYTES];
 
-typedef uint8_t * argKey;
+typedef uint8_t *argKey;
+
 typedef void (*KeyGen)(argKey session_key, argKey private_key);
+
 typedef void (*Shared)(argKey shared, argKey session_key, argKey private_key);
 
-void print_X25519_key(argKey key);
-void print_X448_key(argKey key);
-void random_X25519_key(argKey key);
-void random_X448_key(argKey key);
-
-extern const KeyGen X25519_KeyGen_x64;
-extern const Shared X25519_Shared_x64;
-extern const KeyGen X448_KeyGen_x64;
-extern const Shared X448_Shared_x64;
+extern const KeyGen X25519_KeyGen;
+extern const Shared X25519_Shared;
+extern const KeyGen X448_KeyGen;
+extern const Shared X448_Shared;
 
 #endif /* RFC7748_PRECOMPUTED_H */
