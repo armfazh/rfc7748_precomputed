@@ -5,9 +5,9 @@
  *
  * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
  * Copyright (C) 2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU Lesser General Public License as   
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, version 2 or greater.
  *
  * This program is distributed in the hope that it will be useful, but
@@ -23,44 +23,46 @@
 #include "rfc7748_precomputed.h"
 #include "table_ladder_x25519.h"
 
-static inline void cswap_x64(uint64_t bit, uint64_t *const px, uint64_t *const py) {
+static inline void cswap_x64(uint64_t bit, uint64_t *const px,
+                             uint64_t *const py) {
   int i = 0;
-  uint64_t mask = (uint64_t) 0 - bit;
+  uint64_t mask = (uint64_t)0 - bit;
   for (i = 0; i < NUM_WORDS_ELTFP25519_X64; i++) {
-	uint64_t t = mask & (px[i] ^ py[i]);
-	px[i] = px[i] ^ t;
-	py[i] = py[i] ^ t;
+    uint64_t t = mask & (px[i] ^ py[i]);
+    px[i] = px[i] ^ t;
+    py[i] = py[i] ^ t;
   }
 }
 
 /* Modular reduction by Samuel Neves */
 static inline void reduce_point_mod_2_255_19(uint64_t *p) {
   __asm__ __volatile__(
-      "cmpq $-19, %0     \n"
-	  "setaeb %%al       \n"
-	  "cmpq $-1, %1      \n"
-	  "setzb %%bl        \n"
-	  "cmpq $-1, %2      \n"
-	  "setzb %%cl        \n"
-	  "leaq 1(%3), %%rdx \n"
-	  "shrq $63, %%rdx   \n"
-	  "andb %%bl, %%al   \n"
-	  "andb %%dl, %%cl   \n"
-	  "testb %%cl, %%al  \n"
-	  "movl $0, %%eax    \n"
-	  "movl $19, %%ecx   \n"
-	  "cmovnzq %%rcx, %%rax\n"
-	  "addq %%rax, %0    \n"
-	  "adcq $0, %1       \n"
-	  "adcq $0, %2       \n"
-	  "adcq $0, %3       \n"
-	  "btrq $63, %3      \n"
-  : "+r"(p[0]), "+r"(p[1]), "+r"(p[2]), "+r"(p[3])
-  :
-  : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx");
+      "cmpq $-19, %0        \n"
+      "setaeb %%al          \n"
+      "cmpq $-1, %1         \n"
+      "setzb %%bl           \n"
+      "cmpq $-1, %2         \n"
+      "setzb %%cl           \n"
+      "leaq 1(%3), %%rdx    \n"
+      "shrq $63, %%rdx      \n"
+      "andb %%bl, %%al      \n"
+      "andb %%dl, %%cl      \n"
+      "testb %%cl, %%al     \n"
+      "movl $0, %%eax       \n"
+      "movl $19, %%ecx      \n"
+      "cmovnzq %%rcx, %%rax \n"
+      "addq %%rax, %0       \n"
+      "adcq $0, %1          \n"
+      "adcq $0, %2          \n"
+      "adcq $0, %3          \n"
+      "btrq $63, %3         \n"
+      : "+r"(p[0]), "+r"(p[1]), "+r"(p[2]), "+r"(p[3])
+      :
+      : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx");
 }
 
-static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey private_key) {
+static void x25519_shared_secret_x64(argKey shared, argKey session_key,
+                                     argKey private_key) {
   ALIGN uint64_t buffer[4 * NUM_WORDS_ELTFP25519_X64];
   ALIGN uint64_t coordinates[4 * NUM_WORDS_ELTFP25519_X64];
   ALIGN uint64_t workspace[6 * NUM_WORDS_ELTFP25519_X64];
@@ -69,8 +71,8 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
 
   int i = 0, j = 0;
   uint64_t prev = 0;
-  uint64_t *const X1 = (uint64_t *) session;
-  uint64_t *const key = (uint64_t *) private;
+  uint64_t *const X1 = (uint64_t *)session;
+  uint64_t *const key = (uint64_t *)private;
   uint64_t *const Px = coordinates + 0;
   uint64_t *const Pz = coordinates + 4;
   uint64_t *const Qx = coordinates + 8;
@@ -98,8 +100,11 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
   memcpy(session, session_key, sizeof(session));
 
   /* clampC function */
-  private[0] = private[0] & (~(uint8_t) 0x7);
-  private[X25519_KEYSIZE_BYTES - 1] = (uint8_t) 64 | (private[X25519_KEYSIZE_BYTES - 1] & (uint8_t) 0x7F);
+ private
+  [0] = private[0] & (~(uint8_t)0x7);
+ private
+  [X25519_KEYSIZE_BYTES - 1] =
+      (uint8_t)64 | (private[X25519_KEYSIZE_BYTES - 1] & (uint8_t)0x7F);
 
   /**
   * As in the draft:
@@ -110,7 +115,7 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
   * increase resistance to implementation fingerprinting
   **/
   session[X25519_KEYSIZE_BYTES - 1] &= (1 << (255 % 8)) - 1;
-  reduce_point_mod_2_255_19((uint64_t *) session);
+  reduce_point_mod_2_255_19((uint64_t *)session);
 
   copy_EltFp25519_1w_x64(Px, X1);
   setzero_EltFp25519_1w_x64(Pz);
@@ -124,40 +129,40 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key, argKey p
   prev = 0;
   j = 62;
   for (i = 3; i >= 0; i--) {
-	while (j >= 0) {
-	  uint64_t bit = (key[i] >> j) & 0x1;
-	  uint64_t swap = bit ^prev;
-	  prev = bit;
+    while (j >= 0) {
+      uint64_t bit = (key[i] >> j) & 0x1;
+      uint64_t swap = bit ^ prev;
+      prev = bit;
 
-	  add_EltFp25519_1w_x64(A, X2, Z2);      /* A = (X2+Z2)                   */
-	  sub_EltFp25519_1w_x64(B, X2, Z2);      /* B = (X2-Z2)                   */
-	  add_EltFp25519_1w_x64(C, X3, Z3);      /* C = (X3+Z3)                   */
-	  sub_EltFp25519_1w_x64(D, X3, Z3);      /* D = (X3-Z3)                   */
-	  mul_EltFp25519_2w_x64(DACB, AB, DC);   /* [DA|CB] = [A|B]*[D|C]         */
+      add_EltFp25519_1w_x64(A, X2, Z2);    /* A = (X2+Z2)                   */
+      sub_EltFp25519_1w_x64(B, X2, Z2);    /* B = (X2-Z2)                   */
+      add_EltFp25519_1w_x64(C, X3, Z3);    /* C = (X3+Z3)                   */
+      sub_EltFp25519_1w_x64(D, X3, Z3);    /* D = (X3-Z3)                   */
+      mul_EltFp25519_2w_x64(DACB, AB, DC); /* [DA|CB] = [A|B]*[D|C]         */
 
-	  cswap_x64(swap, A, C);
-	  cswap_x64(swap, B, D);
+      cswap_x64(swap, A, C);
+      cswap_x64(swap, B, D);
 
-	  sqr_EltFp25519_2w_x64(AB);             /* [AA|BB] = [A^2|B^2]           */
-	  add_EltFp25519_1w_x64(X3, DA, CB);     /* X3 = (DA+CB)                  */
-	  sub_EltFp25519_1w_x64(Z3, DA, CB);     /* Z3 = (DA-CB)                  */
-	  sqr_EltFp25519_2w_x64(X3Z3);           /* [X3|Z3] = [(DA+CB)|(DA+CB)]^2 */
+      sqr_EltFp25519_2w_x64(AB);         /* [AA|BB] = [A^2|B^2]           */
+      add_EltFp25519_1w_x64(X3, DA, CB); /* X3 = (DA+CB)                  */
+      sub_EltFp25519_1w_x64(Z3, DA, CB); /* Z3 = (DA-CB)                  */
+      sqr_EltFp25519_2w_x64(X3Z3);       /* [X3|Z3] = [(DA+CB)|(DA+CB)]^2 */
 
-	  copy_EltFp25519_1w_x64(X2, B);         /* X2 = B^2                      */
-	  sub_EltFp25519_1w_x64(Z2, A, B);       /* Z2 = E = AA-BB                */
+      copy_EltFp25519_1w_x64(X2, B);   /* X2 = B^2                      */
+      sub_EltFp25519_1w_x64(Z2, A, B); /* Z2 = E = AA-BB                */
 
-	  mul_a24_EltFp25519_1w_x64(B, Z2);      /* B = a24*E                     */
-	  add_EltFp25519_1w_x64(B, B, X2);       /* B = a24*E+B                   */
-	  mul_EltFp25519_2w_x64(X2Z2, X2Z2, AB); /* [X2|Z2] = [B|E]*[A|a24*E+B]   */
-	  mul_EltFp25519_1w_x64(Z3, Z3, X1);     /* Z3 = Z3*X1                    */
-	  j--;
-	}
-	j = 63;
+      mul_a24_EltFp25519_1w_x64(B, Z2);      /* B = a24*E                     */
+      add_EltFp25519_1w_x64(B, B, X2);       /* B = a24*E+B                   */
+      mul_EltFp25519_2w_x64(X2Z2, X2Z2, AB); /* [X2|Z2] = [B|E]*[A|a24*E+B]   */
+      mul_EltFp25519_1w_x64(Z3, Z3, X1);     /* Z3 = Z3*X1                    */
+      j--;
+    }
+    j = 63;
   }
 
   inv_EltFp25519_1w_x64(A, Qz);
-  mul_EltFp25519_1w_x64((uint64_t *) shared, Qx, A);
-  fred_EltFp25519_1w_x64((uint64_t *) shared);
+  mul_EltFp25519_1w_x64((uint64_t *)shared, Qx, A);
+  fred_EltFp25519_1w_x64((uint64_t *)shared);
 }
 
 static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
@@ -167,7 +172,7 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
   ALIGN uint8_t private[X25519_KEYSIZE_BYTES];
 
   int i = 0, j = 0, k = 0;
-  uint64_t *const key = (uint64_t *) private;
+  uint64_t *const key = (uint64_t *)private;
   uint64_t *const Ur1 = coordinates + 0;
   uint64_t *const Zr1 = coordinates + 4;
   uint64_t *const Ur2 = coordinates + 8;
@@ -186,13 +191,16 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
 
   uint64_t *const buffer_1w = buffer;
   uint64_t *const buffer_2w = buffer;
-  uint64_t *P = (uint64_t *) Table_Ladder_8k;
+  uint64_t *P = (uint64_t *)Table_Ladder_8k;
 
   memcpy(private, private_key, sizeof(private));
 
   /* clampC function */
-  private[0] = private[0] & (~(uint8_t) 0x7);
-  private[X25519_KEYSIZE_BYTES - 1] = (uint8_t) 64 | (private[X25519_KEYSIZE_BYTES - 1] & (uint8_t) 0x7F);
+ private
+  [0] = private[0] & (~(uint8_t)0x7);
+ private
+  [X25519_KEYSIZE_BYTES - 1] =
+      (uint8_t)64 | (private[X25519_KEYSIZE_BYTES - 1] & (uint8_t)0x7F);
 
   setzero_EltFp25519_1w_x64(Ur1);
   setzero_EltFp25519_1w_x64(Zr1);
@@ -214,42 +222,42 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
 
   j = q;
   for (i = 0; i < NUM_WORDS_ELTFP25519_X64; i++) {
-	while (j < ite[i]) {
-	  k = (64 * i + j - q);
-	  uint64_t bit = (key[i] >> j) & 0x1;
-	  swap = swap ^ bit;
-	  cswap_x64(swap, Ur1, Ur2);
-	  cswap_x64(swap, Zr1, Zr2);
-	  swap = bit;
-	  /** Addition */
-	  sub_EltFp25519_1w_x64(B, Ur1, Zr1);     /* B = Ur1-Zr1                 */
-	  add_EltFp25519_1w_x64(A, Ur1, Zr1);     /* A = Ur1+Zr1                 */
-	  mul_EltFp25519_1w_x64(C, &P[4 * k], B); /* C = M0-B                    */
-	  sub_EltFp25519_1w_x64(B, A, C);         /* B = (Ur1+Zr1) - M*(Ur1-Zr1) */
-	  add_EltFp25519_1w_x64(A, A, C);         /* A = (Ur1+Zr1) + M*(Ur1-Zr1) */
-	  sqr_EltFp25519_2w_x64(AB);              /* A = A^2      |  B = B^2     */
-	  mul_EltFp25519_2w_x64(UZr1, ZUr2, AB);  /* Ur1 = Zr2*A  |  Zr1 = Ur2*B */
-	  j++;
-	}
-	j = 0;
+    while (j < ite[i]) {
+      k = (64 * i + j - q);
+      uint64_t bit = (key[i] >> j) & 0x1;
+      swap = swap ^ bit;
+      cswap_x64(swap, Ur1, Ur2);
+      cswap_x64(swap, Zr1, Zr2);
+      swap = bit;
+      /** Addition */
+      sub_EltFp25519_1w_x64(B, Ur1, Zr1);     /* B = Ur1-Zr1                 */
+      add_EltFp25519_1w_x64(A, Ur1, Zr1);     /* A = Ur1+Zr1                 */
+      mul_EltFp25519_1w_x64(C, &P[4 * k], B); /* C = M0-B                    */
+      sub_EltFp25519_1w_x64(B, A, C);         /* B = (Ur1+Zr1) - M*(Ur1-Zr1) */
+      add_EltFp25519_1w_x64(A, A, C);         /* A = (Ur1+Zr1) + M*(Ur1-Zr1) */
+      sqr_EltFp25519_2w_x64(AB);              /* A = A^2      |  B = B^2     */
+      mul_EltFp25519_2w_x64(UZr1, ZUr2, AB);  /* Ur1 = Zr2*A  |  Zr1 = Ur2*B */
+      j++;
+    }
+    j = 0;
   }
 
   /** Doubling */
   for (i = 0; i < q; i++) {
-	add_EltFp25519_1w_x64(A, Ur1, Zr1);  /*  A = Ur1+Zr1   */
-	sub_EltFp25519_1w_x64(B, Ur1, Zr1);  /*  B = Ur1-Zr1   */
-	sqr_EltFp25519_2w_x64(AB);           /*  A = A**2     B = B**2   */
-	copy_EltFp25519_1w_x64(C, B);        /*  C = B         */
-	sub_EltFp25519_1w_x64(B, A, B);      /*  B = A-B       */
-	mul_a24_EltFp25519_1w_x64(D, B);     /*  D = my_a24*B  */
-	add_EltFp25519_1w_x64(D, D, C);      /*  D = D+C       */
-	mul_EltFp25519_2w_x64(UZr1, AB, CD); /*  Ur1 = A*B   Zr1 = Zr1*A */
+    add_EltFp25519_1w_x64(A, Ur1, Zr1);  /*  A = Ur1+Zr1   */
+    sub_EltFp25519_1w_x64(B, Ur1, Zr1);  /*  B = Ur1-Zr1   */
+    sqr_EltFp25519_2w_x64(AB);           /*  A = A**2     B = B**2   */
+    copy_EltFp25519_1w_x64(C, B);        /*  C = B         */
+    sub_EltFp25519_1w_x64(B, A, B);      /*  B = A-B       */
+    mul_a24_EltFp25519_1w_x64(D, B);     /*  D = my_a24*B  */
+    add_EltFp25519_1w_x64(D, D, C);      /*  D = D+C       */
+    mul_EltFp25519_2w_x64(UZr1, AB, CD); /*  Ur1 = A*B   Zr1 = Zr1*A */
   }
 
   /* Convert to affine coordinates */
   inv_EltFp25519_1w_x64(A, Zr1);
-  mul_EltFp25519_1w_x64((uint64_t *) session_key, Ur1, A);
-  fred_EltFp25519_1w_x64((uint64_t *) session_key);
+  mul_EltFp25519_1w_x64((uint64_t *)session_key, Ur1, A);
+  fred_EltFp25519_1w_x64((uint64_t *)session_key);
 }
 
 const KeyGen X25519_KeyGen = x25519_keygen_precmp_x64;
