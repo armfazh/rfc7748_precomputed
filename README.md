@@ -50,6 +50,18 @@ To cite this work use:
 
 ----
 
+### Pre-requirements
+
+This library is a standalone C-language code. However, it is used the [Google Test](https://github.com/google/googletest) C++ library to perform unit tests.
+You can install `gtest` library in your system as follows:
+ 
+```sh
+ # dnf install gtest-devel
+```
+Also, a C++ compiler is needed to compile the test program.
+
+----
+
 ### Compilation
 First, clone the repository and configure project using the [CMake](https://cmake.org/) tool:
 
