@@ -5,7 +5,7 @@
 #include <rfc7748_precomputed.h>
 
 int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
-  if (Size != 2 * 32) return 0;
+  if (Size != 32) return 0;
 
   unsigned char session1[32] = {0};
   unsigned char session2[32] = {0};

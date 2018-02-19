@@ -6,9 +6,9 @@ FUZZER=./third_party/llvm-build/Release+Asserts/bin/clang -fsanitize=fuzzer,addr
 
 CODE_A= -I./hacl ./hacl/Hacl_Curve25519.c
 CODE_B=	-I../include/ ../build/lib/librfc7748_precomputed.a
-CFLAGS+= -g -O3 -Wall -Wextra -fno-omit-frame-pointer
+CFLAGS+= -g -O3 -Wall -Wextra -fno-omit-frame-pointer -lgmp
 
-all: fuzz_keygen fuzz_shared
+all: fuzz_keygen fuzz_shared fuzz_fp25519_add fuzz_fp25519_sub
 
 get_fuzzer:
 	mkdir TMP_CLANG
