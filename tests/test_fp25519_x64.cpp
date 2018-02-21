@@ -57,7 +57,7 @@ TEST(FP25519, MUL_VS_SQR) {
     fred_EltFp25519_1w_x64(c);
     fred_EltFp25519_1w_x64(e);
 
-    EXPECT_EQ(memcmp(c, e, SIZE_BYTES_FP25519), 0)
+    ASSERT_EQ(memcmp(c, e, SIZE_BYTES_FP25519), 0)
               << "got:  " << c << "want: " << e;
     cnt++;
   }
@@ -82,7 +82,7 @@ TEST(FP25519, MUL_VS_INV) {
     fred_EltFp25519_1w_x64(a);
     fred_EltFp25519_1w_x64(b);
 
-    EXPECT_EQ(memcmp(a, b, SIZE_BYTES_FP25519), 0)
+    ASSERT_EQ(memcmp(a, b, SIZE_BYTES_FP25519), 0)
               << "got:  " << a << "want: " << b;
     cnt++;
   }
@@ -127,7 +127,7 @@ TEST(FP25519, ADDITION) {
     }
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
-    EXPECT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
+    ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
               << "a: " << a
               << "b: " << b
               << "got:  " << get_c << "want: " << want_c;
