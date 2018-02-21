@@ -29,13 +29,11 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
   mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
   mpz_mul_ui(gmp_c, gmp_a, a24);
 
-//  int i = 0;
   while (mpz_cmp(gmp_c, two_to_256) >= 0) {
     mpz_mod_2exp(gmp_low, gmp_c, 256);
     mpz_div_2exp(gmp_high, gmp_c, 256);
     mpz_mul_ui(gmp_high, gmp_high, 38);
     mpz_add(gmp_c, gmp_low, gmp_high);
-//    printf("Red #%d: ",i++);mpz_out_str(stdout, 16,gmp_c);printf("\n");
   }
   mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
