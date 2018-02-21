@@ -488,7 +488,7 @@ void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a,
 #else
   __asm__ __volatile__(
     "movq    (%1), %%rdx; " /* A[0] */
-    "mulx   (%2),  %%r8,  %%r9; " /* A[0]*B[0] */                              "movq %%r8,  (%0) ;"
+    "mulx   (%2),  %%r8,  %%r9; " /* A[0]*B[0] */                           "movq %%r8,  (%0) ;"
     "mulx  8(%2), %%r10, %%rax; " /* A[0]*B[1] */    "addq %%r10,  %%r9 ;"  "movq %%r9, 8(%0) ;"
     "mulx 16(%2), %%r12, %%rbx; " /* A[0]*B[2] */    "adcq %%r12, %%rax ;"
     "mulx 24(%2), %%r14, %%rcx; " /* A[0]*B[3] */    "adcq %%r14, %%rbx ;"
@@ -651,24 +651,24 @@ void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
   __asm__ __volatile__(
     "movl    $38, %%edx; " /* 2*c = 38 = 2^256 */
     "mulx 32(%1), %%r8,  %%r10; " /* c*C[4] */
-    "mulx 40(%1), %%r9,  %%r11; " /* c*C[5] */   "addq %%r10,  %%r9 ;"
-    "mulx 48(%1), %%r10, %%rax; " /* c*C[6] */   "adcq %%r11, %%r10 ;"
-    "mulx 56(%1), %%r11, %%rcx; " /* c*C[7] */   "adcq %%rax, %%r11 ;"
-    /****************************************/   "adcq    $0, %%rcx ;"
+    "mulx 40(%1), %%r9,  %%r11; " /* c*C[5] */  "addq %%r10,  %%r9 ;"
+    "mulx 48(%1), %%r10, %%rax; " /* c*C[6] */  "adcq %%r11, %%r10 ;"
+    "mulx 56(%1), %%r11, %%rcx; " /* c*C[7] */  "adcq %%rax, %%r11 ;"
+    /****************************************/  "adcq    $0, %%rcx ;"
     "addq   (%1),  %%r8 ;"
     "adcq  8(%1),  %%r9 ;"
     "adcq 16(%1), %%r10 ;"
     "adcq 24(%1), %%r11 ;"
     "adcq     $0, %%rcx ;"
-    "mulx  %%rcx, %%rax, %%rcx ;" "addq %%rax,  %%r8 ;"
-    /***************************/ "adcq %%rcx,  %%r9 ;"
-    /***************************/ "adcq    $0, %%r10 ;"
-    /***************************/ "adcq    $0, %%r11 ;"
-    "setc %%al ;"
-    "negq %%rax ;"
+    "mulx %%rcx, %%rax, %%rcx ; " /* c*C[4] */
+    "addq %%rax,  %%r8 ;"
+    "adcq %%rcx,  %%r9 ;"
+    "adcq    $0, %%r10 ;"
+    "adcq    $0, %%r11 ;"
+    "setc %%al         ;"
+    "negq %%rax        ;"
     "andq   $38, %%rax ;"
-    "addq %%rax, %%r8 ;"
-    "adcq    $0, %%r9 ;"
+    "addq %%rax,  %%r8 ;"
     "movq  %%r8,   (%0) ;"
     "movq  %%r9,  8(%0) ;"
     "movq %%r10, 16(%0) ;"
@@ -807,7 +807,7 @@ inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
       "negq %%rax ;"
       "andq   $38, %%rax ;"
       "addq %%rax,  %%r8 ;"
-      "adcq    $0,  %%r9 ;"
+      /*"adcq    $0,  %%r9 ;"*/
       "movq  %%r8,   (%0) ;"
       "movq  %%r9,  8(%0) ;"
       "movq %%r10, 16(%0) ;"
