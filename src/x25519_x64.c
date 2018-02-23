@@ -1,10 +1,7 @@
 /**
- * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
+ * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
  * Institute of Computing.
  * University of Campinas, Brazil.
- *
- * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
- * Copyright (C) 2018 Samuel Neves <sneves@dei.uc.pt>. All Rights Reserved.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
@@ -88,7 +85,6 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key,
   * increase resistance to implementation fingerprinting
   **/
   session[X25519_KEYSIZE_BYTES - 1] &= (1 << (255 % 8)) - 1;
-//  reduce_point_mod_2_255_19((uint64_t *)session);
 
   copy_EltFp25519_1w_x64(Px, X1);
   setzero_EltFp25519_1w_x64(Pz);

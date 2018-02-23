@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>.
+ * Copyright (c) 2017 Armando Faz <armfazh@ic.unicamp.br>. All Rights Reserved.
  * Institute of Computing.
  * University of Campinas, Brazil.
  *
