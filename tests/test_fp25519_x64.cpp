@@ -400,7 +400,7 @@ TEST(FP25519, MULA24) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-                  << "a: " << a << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "got:  " << get_c << "want: " << want_c;
     count++;
   }
   EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
@@ -432,7 +432,7 @@ TEST(FP25519, FREDUCTION) {
     setzero_EltFp25519_1w_x64(want_c);
 
     random_EltFp25519_1w_x64(a);
-    copy_EltFp25519_1w_x64(get_c,a);
+    copy_EltFp25519_1w_x64(get_c, a);
     mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
 
     fred_EltFp25519_1w_x64(get_c);
@@ -441,7 +441,7 @@ TEST(FP25519, FREDUCTION) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-                  << "a: " << a << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "got:  " << get_c << "want: " << want_c;
     count++;
   }
   EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES

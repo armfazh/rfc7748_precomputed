@@ -16,27 +16,28 @@ This source code is part of the research work titled: _"How to (pre-)compute a l
 
 ### Research Resources
 
-A peer-reviewed paper was presented in the 24th Annual Conference on Selected Areas in Cryptography ([SAC2017](http://sacworkshop.org/SAC17/SAC2017.htm)). 
- [[DOI](http://doi.org/10.1007/978-3-319-72565-9_9)] 
-Slides [[PDF](http://www.ic.unicamp.br/~ra142685/userfiles/papers/oliveira_sac2017.pdf)].
-
-A pre-print of this document can be found at the IACR ePrint Archive: 
- [http://iacr.eprint.org/2017/264](https://eprint.iacr.org/2017/264) [[PDF](https://eprint.iacr.org/2017/264.pdf)]
-
+A peer-reviewed paper was presented in the 24th Annual Conference on Selected Areas in Cryptography ([SAC2017](http://sacworkshop.org/SAC17/SAC2017.htm)).
+ - Paper [[DOI](http://doi.org/10.1007/978-3-319-72565-9_9)]
+ - Slides [[PDF](http://www.ic.unicamp.br/~ra142685/userfiles/papers/oliveira_sac2017.pdf)].
+ - Pre-print (IACR ePrint Archive) [http://iacr.eprint.org/2017/264](https://eprint.iacr.org/2017/264) [[PDF](https://eprint.iacr.org/2017/264.pdf)]
 
 
 To cite this work use:
 
 ```tex
 @inproceedings{oliveira_sac2017,
-    author = {Thomaz Oliveira and Julio L\'opez and H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and Francisco Rodr\'iguez-Henr\'iquez},
-    editor = {Adams, Carlisle and Camenisch, Jan},
-    title  = {How to (pre-)compute a ladder},
-    booktitle = {Selected Areas in Cryptography – SAC 2017: 24th International Conference, Ottawa, Ontario, Canada, August 16 - 18, 2017, Revised Selected Papers},
-    year   = {2018},
+    author    = {Thomaz Oliveira and Julio L\'opez and 
+                 H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and 
+                 Francisco Rodr\'iguez-Henr\'iquez},
+    editor    = {Adams, Carlisle and Camenisch, Jan},
+    title     = {How to (pre-)compute a ladder},
+    booktitle = {Selected Areas in Cryptography – SAC 2017: 
+                 24th International Conference, Ottawa, Ontario,
+                 Canada, August 16 - 18, 2017, Revised Selected Papers},
+    year      = {2018},
     publisher = {Springer International Publishing},
-    pages  = "172-191",
-    doi    = {10.1007/978-3-319-72565-9_9},
+    pages     = "172-191",
+    doi       = {10.1007/978-3-319-72565-9_9},
 }
 ```
 ----
@@ -109,6 +110,11 @@ For running a sample program use:
  $ bin/sample_x25519
  $ bin/sample_x448
 ```
+
+#### Fuzzing Test
+
+In the *fuzz* folder, there are several tests against  `gmp` library and the `HACL` project. Read the compilation instructions at *fuzz/README.md* for more information.
+
 ----
 
 
@@ -116,19 +122,23 @@ For running a sample program use:
 Benchmark performance on 64-bit Intel architectures (table entries are clock cycles).
 
 | X25519 | Haswell | Skylake |
-| ------ | ------ | ------ |
-| Keygen        |  90,895 | 72,571 |
-| Shared Secret | 138,962 | 107,942 |
+| ------ | ------:| ------:|
+| Key Generation |  92,400 |  69,500 |
+| Shared Secret  | 145,800 | 108,700 |
  	 	 	
 | X448 | Haswell | Skylake |
-| ------ | ------ | ------ |
-| Keygen        | 401,902 | 322,040 |
-| Shared Secret | 670,747 | 528,470 |
+| ------ | ------:| ------:|
+| Key Generation | 401,902 | 322,040 |
+| Shared Secret  | 670,747 | 528,470 |
+
+**Haswell** is a Core i7-4770 processor.
+
+**Skylake** is a Core i7-6700K processor. 
 
 ----
 
 ### License 
-GNU Lesser General Public License v2+ ([LICENSE](https://www.gnu.org/licenses/lgpl-2.1.txt))
+GNU Lesser General Public License v2.1 ([LICENSE](https://www.gnu.org/licenses/lgpl-2.1.txt))
 
 ----
 

@@ -35,10 +35,11 @@ This will download a Clang compiler with the fuzzer library enabled.
 After compilation two testing programs will be generated. To test keygen function run:
 
 ```sh
- $ ./fuzz_keygen
- $ ./fuzz_shared
+ $ ./fuzz_hacl_keygen
+ $ ./fuzz_hacl_shared
+ $ ./fuzz_gmp_add
 ```
-Each program will stop in the case an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
+Each program will stop when an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
 
 ----
 
