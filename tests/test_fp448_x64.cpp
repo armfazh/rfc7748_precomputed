@@ -47,12 +47,12 @@ TEST(FP448, MUL_VS_SQR) {
     fred_EltFp448_1w_x64(c);
     fred_EltFp448_1w_x64(e);
 
-    EXPECT_EQ(memcmp(c, e, SIZE_BYTES_FP448), 0)
-        << "got:  " << c << "want: " << e;
+    EXPECT_EQ(memcmp(c, e, SIZE_BYTES_FP448), 0) << "got:  " << c
+                                                 << "want: " << e;
     cnt++;
   }
-  EXPECT_EQ(cnt, TEST_TIMES)
-      << "passed: " << cnt << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(cnt, TEST_TIMES) << "passed: " << cnt << "/" << TEST_TIMES
+                             << std::endl;
 }
 
 // Verifies that (a*b*a^1) == (b)
@@ -72,10 +72,10 @@ TEST(FP448, MUL_VS_INV) {
     fred_EltFp448_1w_x64(a);
     fred_EltFp448_1w_x64(b);
 
-    EXPECT_EQ(memcmp(a, b, SIZE_BYTES_FP448), 0)
-        << "got:  " << a << "want: " << b;
+    EXPECT_EQ(memcmp(a, b, SIZE_BYTES_FP448), 0) << "got:  " << a
+                                                 << "want: " << b;
     cnt++;
   }
-  EXPECT_EQ(cnt, TEST_TIMES)
-      << "passed: " << cnt << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(cnt, TEST_TIMES) << "passed: " << cnt << "/" << TEST_TIMES
+                             << std::endl;
 }

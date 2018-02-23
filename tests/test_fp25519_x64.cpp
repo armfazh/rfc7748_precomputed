@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <fp25519_x64.h>
-#include <gtest/gtest.h>
 #include <gmp.h>
+#include <gtest/gtest.h>
 #include "random.h"
 
 #define TEST_TIMES 50000
@@ -26,11 +26,11 @@ static void random_EltFp25519_1w_x64(uint64_t *A) {
   random_bytes(reinterpret_cast<uint8_t *>(A), SIZE_BYTES_FP25519);
 }
 
-static std::ostream &operator<<(std::ostream &os, const EltFp25519_1w_x64 &number) {
+static std::ostream &operator<<(std::ostream &os,
+                                const EltFp25519_1w_x64 &number) {
   os << "0x";
   for (int i = NUM_WORDS_ELTFP25519_X64 - 1; i >= 0; i--) {
-    os << std::setbase(16) << std::setfill('0') << std::setw(16)
-       << number[i];
+    os << std::setbase(16) << std::setfill('0') << std::setw(16) << number[i];
   }
   return os << std::endl;
 }
@@ -57,12 +57,12 @@ TEST(FP25519, MUL_VS_SQR) {
     fred_EltFp25519_1w_x64(c);
     fred_EltFp25519_1w_x64(e);
 
-    ASSERT_EQ(memcmp(c, e, SIZE_BYTES_FP25519), 0)
-              << "got:  " << c << "want: " << e;
+    ASSERT_EQ(memcmp(c, e, SIZE_BYTES_FP25519), 0) << "got:  " << c
+                                                   << "want: " << e;
     cnt++;
   }
-  EXPECT_EQ(cnt, TEST_TIMES)
-            << "passed: " << cnt << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(cnt, TEST_TIMES) << "passed: " << cnt << "/" << TEST_TIMES
+                             << std::endl;
 }
 
 /* Verifies that (a*b*a^1) == (b) */
@@ -82,12 +82,12 @@ TEST(FP25519, MUL_VS_INV) {
     fred_EltFp25519_1w_x64(a);
     fred_EltFp25519_1w_x64(b);
 
-    ASSERT_EQ(memcmp(a, b, SIZE_BYTES_FP25519), 0)
-              << "got:  " << a << "want: " << b;
+    ASSERT_EQ(memcmp(a, b, SIZE_BYTES_FP25519), 0) << "got:  " << a
+                                                   << "want: " << b;
     cnt++;
   }
-  EXPECT_EQ(cnt, TEST_TIMES)
-            << "passed: " << cnt << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(cnt, TEST_TIMES) << "passed: " << cnt << "/" << TEST_TIMES
+                             << std::endl;
 }
 
 /* Verifies that 0 <= c=a+b < 2**256 and that c be congruent to a+b mod p */
@@ -128,13 +128,11 @@ TEST(FP25519, ADDITION) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-              << "a: " << a
-              << "b: " << b
-              << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
     count++;
   }
-  EXPECT_EQ(count, TEST_TIMES)
-            << "passed: " << count << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
 
   mpz_clear(gmp_a);
   mpz_clear(gmp_b);
@@ -180,19 +178,137 @@ TEST(FP25519, SUBTRACTION) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-                  << "a: " << a
-                  << "b: " << b
-                  << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
     count++;
   }
-  EXPECT_EQ(count, TEST_TIMES)
-            << "passed: " << count << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
 
   mpz_clear(gmp_a);
   mpz_clear(gmp_b);
   mpz_clear(gmp_c);
   mpz_clear(two_prime);
   mpz_clear(zero);
+}
+
+/* Verifies that 0 <= c=a*b < 2**512 */
+TEST(FP25519, MULTIPLICATION) {
+  int count = 0;
+  EltFp25519_1w_x64 a, b;
+  EltFp25519_1w_Buffer_x64 get_c, want_c;
+
+  mpz_t gmp_a, gmp_b, gmp_c;
+  mpz_init(gmp_a);
+  mpz_init(gmp_b);
+  mpz_init(gmp_c);
+
+  for (int i = 0; i < TEST_TIMES; i++) {
+    setzero_EltFp25519_1w_x64(get_c);
+    setzero_EltFp25519_1w_x64(get_c + NUM_WORDS_ELTFP25519_X64);
+    setzero_EltFp25519_1w_x64(want_c);
+    setzero_EltFp25519_1w_x64(want_c + NUM_WORDS_ELTFP25519_X64);
+
+    random_EltFp25519_1w_x64(a);
+    random_EltFp25519_1w_x64(b);
+
+    mul_256x256_integer_x64(get_c, a, b);
+
+    mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
+    mpz_import(gmp_b, NUM_WORDS_ELTFP25519_X64, -1, sizeof(b[0]), 0, 0, b);
+
+    mpz_mul(gmp_c, gmp_a, gmp_b);
+    mpz_export(want_c, NULL, -1, 2 * SIZE_BYTES_FP25519, 0, 0, gmp_c);
+
+    ASSERT_EQ(memcmp(get_c, want_c, 2 * SIZE_BYTES_FP25519), 0)
+        << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
+    count++;
+  }
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
+
+  mpz_clear(gmp_a);
+  mpz_clear(gmp_b);
+  mpz_clear(gmp_c);
+}
+
+/* Verifies that 0 <= c=a*a < 2**512 */
+TEST(FP25519, SQUARING) {
+  int count = 0;
+  EltFp25519_1w_x64 a;
+  EltFp25519_1w_Buffer_x64 get_c, want_c;
+
+  mpz_t gmp_a, gmp_c;
+  mpz_init(gmp_a);
+  mpz_init(gmp_c);
+
+  for (int i = 0; i < TEST_TIMES; i++) {
+    setzero_EltFp25519_1w_x64(get_c);
+    setzero_EltFp25519_1w_x64(get_c + NUM_WORDS_ELTFP25519_X64);
+    setzero_EltFp25519_1w_x64(want_c);
+    setzero_EltFp25519_1w_x64(want_c + NUM_WORDS_ELTFP25519_X64);
+
+    random_EltFp25519_1w_x64(a);
+
+    sqr_256x256_integer_x64(get_c, a);
+
+    mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
+
+    mpz_mul(gmp_c, gmp_a, gmp_a);
+    mpz_export(want_c, NULL, -1, 2 * SIZE_BYTES_FP25519, 0, 0, gmp_c);
+
+    ASSERT_EQ(memcmp(get_c, want_c, 2 * SIZE_BYTES_FP25519), 0)
+        << "a: " << a << "got:  " << get_c << "want: " << want_c;
+    count++;
+  }
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
+
+  mpz_clear(gmp_a);
+  mpz_clear(gmp_c);
+}
+
+/* Verifies that 0 <= c=a^-1 < 2**256 and that c be congruent to a^-1 mod p */
+TEST(FP25519, INVERSION) {
+  int count = 0;
+  EltFp25519_1w_x64 a, get_c, want_c;
+
+  mpz_t gmp_a, gmp_c, two_prime, prime_minus_two;
+  mpz_init(gmp_a);
+  mpz_init(gmp_c);
+
+  // two_prime = 2^256-38
+  mpz_init_set_ui(two_prime, 1);
+  mpz_mul_2exp(two_prime, two_prime, 256);
+  mpz_sub_ui(two_prime, two_prime, 38);
+
+  // expo = p-2 = 2^255-19-2 = 2^255-21
+  mpz_init_set_ui(prime_minus_two, 1);
+  mpz_mul_2exp(prime_minus_two, prime_minus_two, 255);
+  mpz_sub_ui(prime_minus_two, prime_minus_two, 21);
+
+  for (int i = 0; i < TEST_TIMES; i++) {
+    setzero_EltFp25519_1w_x64(get_c);
+    setzero_EltFp25519_1w_x64(want_c);
+
+    random_EltFp25519_1w_x64(a);
+
+    inv_EltFp25519_1w_x64(get_c, a);
+
+    mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
+    mpz_powm(gmp_c, gmp_a, prime_minus_two, two_prime);
+    mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
+
+    ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
+        << "a: " << a << "got:  " << get_c << "want: " << want_c;
+    count++;
+  }
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
+
+  mpz_clear(gmp_a);
+  mpz_clear(gmp_c);
+  mpz_clear(two_prime);
+  mpz_clear(prime_minus_two);
 }
 
 /* Verifies that 0<= c=a*b < 2**256 and that c be congruent to a*b mod p */
@@ -235,13 +351,11 @@ TEST(FP25519, REDUCTION) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-                  << "a: " << a
-                  << "b: " << b
-                  << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
     count++;
   }
-  EXPECT_EQ(count, TEST_TIMES)
-            << "passed: " << count << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
 
   mpz_clear(gmp_a);
   mpz_clear(gmp_b);
@@ -286,12 +400,11 @@ TEST(FP25519, MULA24) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-                  << "a: " << a
-                  << "got:  " << get_c << "want: " << want_c;
+        << "a: " << a << "got:  " << get_c << "want: " << want_c;
     count++;
   }
-  EXPECT_EQ(count, TEST_TIMES)
-            << "passed: " << count << "/" << TEST_TIMES << std::endl;
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
 
   mpz_clear(gmp_a);
   mpz_clear(gmp_c);
