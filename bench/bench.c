@@ -15,11 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BYTES_H
-#define BYTES_H
+#include "bench.h"
+#include <stdio.h>
 
-#include <stdint.h>
-void print_bytes(uint8_t * A, int num_bytes);
-int compare_bytes(uint8_t* A, uint8_t* B,unsigned int num_bytes);
-
-#endif /* BYTES_H */
+int main(void) {
+  printf("== Start of Benchmark ===\n");
+  bench_fp25519_x64();
+  bench_x25519();
+  bench_fp448_x64();
+  bench_x448();
+  printf("== End of Benchmark =====\n");
+  return 0;
+}

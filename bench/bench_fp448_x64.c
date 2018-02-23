@@ -15,28 +15,33 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <fp448_x64.h>
 #include <stdio.h>
-#include "bytes.h"
+#include "clocks.h"
+#include "random.h"
 
-void print_bytes(uint8_t * A, int num_bytes)
-{
-	int i;
-
-	printf("0x");
-	for(i=num_bytes-1;i>=0;i--)
-	{
-		printf("%02x", A[i]);
-	}
-	printf("\n");
+static void random_EltFp448_1w_x64(uint64_t *A) {
+  random_bytes((uint8_t *)A, SIZE_BYTES_FP448);
 }
 
-int compare_bytes(uint8_t* A, uint8_t* B,unsigned int num_bytes)
-{
-	unsigned int i=0;
-	uint8_t ret=0;
-	for(i=0;i<num_bytes;i++)
-	{
-		ret |= A[i]^B[i];
-	}
-	return ret;
+void bench_fp448_x64(void) {
+  int BENCH = 3000;
+
+  EltFp448_1w_x64 a, b, c;
+  EltFp448_1w_Buffer_x64 buffer_1w;
+
+  random_EltFp448_1w_x64(a);
+  random_EltFp448_1w_x64(b);
+  random_EltFp448_1w_x64(c);
+
+  printf("= GF(2^448-2^224-1) =\n");
+  printf("== 1-way x64 \n");
+  CLOCKS("add", add_EltFp448_1w_x64(c, a, b));
+  CLOCKS("sub", sub_EltFp448_1w_x64(c, a, b));
+  CLOCKS("mul", mul_EltFp448_1w_x64(c, c, b));
+  CLOCKS("m24", mul_a24_EltFp448_1w_x64(c, a));
+  CLOCKS("sqr", sqr_EltFp448_1w_x64(c));
+
+  BENCH /= 10;
+  CLOCKS("inv", inv_EltFp448_1w_x64(c, a));
 }
