@@ -34,33 +34,6 @@ static inline void cswap_x64(uint64_t bit, uint64_t *const px,
   }
 }
 
-/* Modular reduction by Samuel Neves */
-static inline void reduce_point_mod_2_255_19(uint64_t *p) {
-  __asm__ __volatile__(
-      "cmpq $-19, %0        \n"
-      "setaeb %%al          \n"
-      "cmpq $-1, %1         \n"
-      "setzb %%bl           \n"
-      "cmpq $-1, %2         \n"
-      "setzb %%cl           \n"
-      "leaq 1(%3), %%rdx    \n"
-      "shrq $63, %%rdx      \n"
-      "andb %%bl, %%al      \n"
-      "andb %%dl, %%cl      \n"
-      "testb %%cl, %%al     \n"
-      "movl $0, %%eax       \n"
-      "movl $19, %%ecx      \n"
-      "cmovnzq %%rcx, %%rax \n"
-      "addq %%rax, %0       \n"
-      "adcq $0, %1          \n"
-      "adcq $0, %2          \n"
-      "adcq $0, %3          \n"
-      "btrq $63, %3         \n"
-      : "+r"(p[0]), "+r"(p[1]), "+r"(p[2]), "+r"(p[3])
-      :
-      : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx");
-}
-
 static void x25519_shared_secret_x64(argKey shared, argKey session_key,
                                      argKey private_key) {
   ALIGN uint64_t buffer[4 * NUM_WORDS_ELTFP25519_X64];
@@ -115,7 +88,7 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key,
   * increase resistance to implementation fingerprinting
   **/
   session[X25519_KEYSIZE_BYTES - 1] &= (1 << (255 % 8)) - 1;
-  reduce_point_mod_2_255_19((uint64_t *)session);
+//  reduce_point_mod_2_255_19((uint64_t *)session);
 
   copy_EltFp25519_1w_x64(Px, X1);
   setzero_EltFp25519_1w_x64(Pz);

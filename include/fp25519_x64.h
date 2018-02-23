@@ -67,7 +67,7 @@ void sub_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a,
 
 void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a);
 
-void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA);
+void inv_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a);
 
 void fred_EltFp25519_1w_x64(uint64_t *const c);
 

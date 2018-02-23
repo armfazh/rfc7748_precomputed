@@ -90,7 +90,7 @@ TEST(FP25519, MUL_VS_INV) {
                              << std::endl;
 }
 
-/* Verifies that 0 <= c=a+b < 2**256 and that c be congruent to a+b mod p */
+/* Verifies that 0 <= c=a+b < 2^256 and that c be congruent to a+b mod p */
 TEST(FP25519, ADDITION) {
   int count = 0;
   EltFp25519_1w_x64 a, b, get_c, want_c;
@@ -141,7 +141,7 @@ TEST(FP25519, ADDITION) {
   mpz_clear(two_to_256);
 }
 
-/* Verifies that 0 <= c=a-b < 2**256 and that c be congruent to a-b mod p */
+/* Verifies that 0 <= c=a-b < 2^256 and that c be congruent to a-b mod p */
 TEST(FP25519, SUBTRACTION) {
   int count = 0;
   EltFp25519_1w_x64 a, b, get_c, want_c;
@@ -191,7 +191,7 @@ TEST(FP25519, SUBTRACTION) {
   mpz_clear(zero);
 }
 
-/* Verifies that 0 <= c=a*b < 2**512 */
+/* Verifies that 0 <= c=a*b < 2^512 */
 TEST(FP25519, MULTIPLICATION) {
   int count = 0;
   EltFp25519_1w_x64 a, b;
@@ -231,7 +231,7 @@ TEST(FP25519, MULTIPLICATION) {
   mpz_clear(gmp_c);
 }
 
-/* Verifies that 0 <= c=a*a < 2**512 */
+/* Verifies that 0 <= c=a*a < 2^512 */
 TEST(FP25519, SQUARING) {
   int count = 0;
   EltFp25519_1w_x64 a;
@@ -267,7 +267,7 @@ TEST(FP25519, SQUARING) {
   mpz_clear(gmp_c);
 }
 
-/* Verifies that 0 <= c=a^-1 < 2**256 and that c be congruent to a^-1 mod p */
+/* Verifies that 0 <= c=a^-1 < 2^256 and that c be congruent to a^-1 mod p */
 TEST(FP25519, INVERSION) {
   int count = 0;
   EltFp25519_1w_x64 a, get_c, want_c;
@@ -311,7 +311,7 @@ TEST(FP25519, INVERSION) {
   mpz_clear(prime_minus_two);
 }
 
-/* Verifies that 0<= c=a*b < 2**256 and that c be congruent to a*b mod p */
+/* Verifies that 0<= c=a*b < 2^256 and that c be congruent to a*b mod p */
 TEST(FP25519, REDUCTION) {
   int count = 0;
   EltFp25519_1w_x64 a, b, get_c, want_c;
@@ -365,7 +365,7 @@ TEST(FP25519, REDUCTION) {
   mpz_clear(two_to_256);
 }
 
-/* Verifies that 0<= c=a24*a < 2**256 and that c be congruent to a24*a mod p */
+/* Verifies that 0<= c=a24*a < 2^256 and that c be congruent to a24*a mod p */
 TEST(FP25519, MULA24) {
   int count = 0;
   const uint64_t a24 = 121666;
@@ -400,7 +400,7 @@ TEST(FP25519, MULA24) {
     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-        << "a: " << a << "got:  " << get_c << "want: " << want_c;
+                  << "a: " << a << "got:  " << get_c << "want: " << want_c;
     count++;
   }
   EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
@@ -411,4 +411,43 @@ TEST(FP25519, MULA24) {
   mpz_clear(gmp_low);
   mpz_clear(gmp_high);
   mpz_clear(two_to_256);
+}
+
+/* Verifies that 0 <= c=a mod p < 2^255-19 for a number 0 <= a < 2^256 */
+TEST(FP25519, FREDUCTION) {
+  int count = 0;
+  EltFp25519_1w_x64 a, get_c, want_c;
+
+  mpz_t gmp_a, gmp_c, prime;
+  mpz_init(gmp_a);
+  mpz_init(gmp_c);
+
+  // prime = p-2 = 2^255-19
+  mpz_init_set_ui(prime, 1);
+  mpz_mul_2exp(prime, prime, 255);
+  mpz_sub_ui(prime, prime, 19);
+
+  for (int i = 0; i < TEST_TIMES; i++) {
+    setzero_EltFp25519_1w_x64(get_c);
+    setzero_EltFp25519_1w_x64(want_c);
+
+    random_EltFp25519_1w_x64(a);
+    copy_EltFp25519_1w_x64(get_c,a);
+    mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
+
+    fred_EltFp25519_1w_x64(get_c);
+    mpz_mod(gmp_c, gmp_a, prime);
+
+    mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
+
+    ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
+                  << "a: " << a << "got:  " << get_c << "want: " << want_c;
+    count++;
+  }
+  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+                               << std::endl;
+
+  mpz_clear(gmp_a);
+  mpz_clear(gmp_c);
+  mpz_clear(prime);
 }

@@ -821,11 +821,11 @@ inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
 #endif
 }
 
-void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA) {
-#define sqrn_EltFp25519_1w_x64(a, times)\
+void inv_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
+#define sqrn_EltFp25519_1w_x64(A, times)\
   counter = times;\
   while ( counter-- > 0) {\
-      sqr_EltFp25519_1w_x64(a);\
+      sqr_EltFp25519_1w_x64(A);\
   }
 
   EltFp25519_1w_Buffer_x64 buffer_1w;
@@ -834,16 +834,16 @@ void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA) {
   uint64_t counter;
 
   T[0] = x0;
-  T[1] = pC; /* x^(-1) */
+  T[1] = c; /* x^(-1) */
   T[2] = x1;
   T[3] = x2;
-  T[4] = pA; /* x */
+  T[4] = a; /* x */
 
-  copy_EltFp25519_1w_x64(T[1], pA);
+  copy_EltFp25519_1w_x64(T[1], a);
   sqrn_EltFp25519_1w_x64(T[1], 1);
   copy_EltFp25519_1w_x64(T[2], T[1]);
   sqrn_EltFp25519_1w_x64(T[2], 2);
-  mul_EltFp25519_1w_x64(T[0], pA, T[2]);
+  mul_EltFp25519_1w_x64(T[0], a, T[2]);
   mul_EltFp25519_1w_x64(T[1], T[1], T[0]);
   copy_EltFp25519_1w_x64(T[2], T[1]);
   sqrn_EltFp25519_1w_x64(T[2], 1);
@@ -872,8 +872,53 @@ void inv_EltFp25519_1w_x64(uint64_t *const pC, uint64_t *const pA) {
 #undef sqrn_EltFp25519_1w_x64
 }
 
+/**
+ * Given C, a 256-bit number, fred_EltFp25519_1w_x64 updates C
+ * with a number such that 0 <= C < 2**255-19.
+ * Contributed by: Samuel Neves.
+ **/
 inline void fred_EltFp25519_1w_x64(uint64_t *const c) {
-  int64_t last = (((int64_t*)c)[3])>>63;
-  c[3] &= ((uint64_t)1<<63)-1;
-  c[0] += 19 & last;
+  __asm__ __volatile__ (
+  /* First, obtains a number less than 2^255. */
+    "btrq   $63, 24(%0) ;"
+    "sbbl %%ecx, %%ecx  ;"
+    "andq   $19, %%rcx  ;"
+    "addq %%rcx,   (%0) ;"
+    "adcq    $0,  8(%0) ;"
+    "adcq    $0, 16(%0) ;"
+    "adcq    $0, 24(%0) ;"
+
+    "btrq   $63, 24(%0) ;"
+    "sbbl %%ecx, %%ecx  ;"
+    "andq   $19, %%rcx  ;"
+    "addq %%rcx,   (%0) ;"
+    "adcq    $0,  8(%0) ;"
+    "adcq    $0, 16(%0) ;"
+    "adcq    $0, 24(%0) ;"
+
+  /* Then, in case the number fall into [2^255-19, 2^255-1] */
+    "cmpq $-19,   (%0)   ;"
+    "setaeb %%al         ;"
+    "cmpq  $-1,  8(%0)   ;"
+    "setzb %%bl          ;"
+    "cmpq  $-1, 16(%0)   ;"
+    "setzb %%cl          ;"
+    "movq 24(%0), %%rdx  ;"
+    "addq   $1, %%rdx    ;"
+    "shrq  $63, %%rdx    ;"
+    "andb %%bl, %%al     ;"
+    "andb %%dl, %%cl     ;"
+    "test %%cl, %%al     ;"
+    "movl  $0, %%eax     ;"
+    "movl $19, %%ecx     ;"
+    "cmovnz %%rcx, %%rax ;"
+    "addq %%rax,   (%0)  ;"
+    "adcq    $0,  8(%0)  ;"
+    "adcq    $0, 16(%0)  ;"
+    "adcq    $0, 24(%0)  ;"
+    "btrq   $63, 24(%0)  ;"
+  :
+  : "r"(c)
+  : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx"
+  );
 }
