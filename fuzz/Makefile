@@ -6,26 +6,32 @@ FUZZER=./third_party/llvm-build/Release+Asserts/bin/clang -fsanitize=fuzzer,addr
 
 RFC7748_PATH=../build
 RFC7748_LIB=rfc7748_precomputed
-CFLAGS+= -g -O3 -Wall -Wextra -fno-omit-frame-pointer -I../include/
+CFLAGS+= -g -O3 -Wall -Wextra -pedantic -fno-omit-frame-pointer -I../include/
 
-BINARIES=fuzz_hacl_keygen \
-         fuzz_hacl_shared \
-         fuzz_gmp_fp25519_add \
-         fuzz_gmp_fp25519_sub \
-         fuzz_gmp_fp25519_red \
-         fuzz_gmp_fp25519_a24
+all: hacl gmp
 
-all: $(BINARIES)
+hacl: hacl_keygen hacl_shared
+gmp: gmp_fp25519_a24 \
+     gmp_fp25519_add \
+     gmp_fp25519_sub \
+     gmp_fp25519_red \
+     gmp_fp25519_mul \
+     gmp_fp25519_sqr \
+     gmp_fp25519_mul2 \
+     gmp_fp25519_sqr2 \
+     gmp_fp25519_inv \
+     gmp_fp25519_fred
+
 
 get_fuzzer:
 	mkdir TMP_CLANG
 	cd TMP_CLANG; git clone https://chromium.googlesource.com/chromium/src/tools/clang
 	./TMP_CLANG/clang/scripts/update.py
 
-fuzz_hacl_%: fuzz_hacl_%.c ./hacl/Hacl_Curve25519.c $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a
+hacl_%: hacl_%.c ./hacl/Hacl_Curve25519.c $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a
 	$(FUZZER) -o $@ $(CFLAGS) $^ -I./hacl
 
-fuzz_gmp_%: fuzz_gmp_%.c $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a
+gmp_%: gmp_%.c $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a
 	$(FUZZER) -o $@ $(CFLAGS) $^ -lgmp
 
 $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a:
@@ -34,7 +40,17 @@ $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a:
 .PHONY: $(RFC7748_PATH)/lib/lib$(RFC7748_LIB).a
 
 clean:
-	rm -f $(BINARIES)
+	rm -f hacl_keygen hacl_shared \
+		gmp_fp25519_a24 \
+		gmp_fp25519_add \
+		gmp_fp25519_sub \
+		gmp_fp25519_red \
+		gmp_fp25519_mul \
+		gmp_fp25519_sqr \
+		gmp_fp25519_mul2 \
+		gmp_fp25519_sqr2 \
+		gmp_fp25519_inv \
+		gmp_fp25519_fred
 
 cleanall:
 	rm -rf ./TMP_CLANG ./third_party
