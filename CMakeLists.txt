@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.0.2)
 project(rfc7748_precomputed C)
 
 set(EXECUTABLE_OUTPUT_PATH ../bin)

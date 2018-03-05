@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.0.2)
 
 add_custom_command(
 		OUTPUT new_clang
@@ -9,7 +9,10 @@ add_custom_command(
 		COMMAND ln -s ./third_party/llvm-build/Release+Asserts/bin/clang new_clang
 		)
 
-add_custom_target(get_fuzzer DEPENDS new_clang)
+add_custom_target(get_fuzzer
+		DEPENDS new_clang
+		)
+set_directory_properties(PROPERTIES CLEAN_NO_CUSTOM 1)
 
 include_directories(../include)
 include_directories(./hacl)

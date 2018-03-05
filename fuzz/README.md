@@ -14,30 +14,30 @@ Fuzzing test is performed using `libFuzzer` library available [here](https://llv
  $ mkdir rfc7748_precomputed/build
  $ cd rfc7748_precomputed/build
  $ cmake ..
- $ make 
+ $ make fuzz
 ```
 
  3. You can get `libFuzzer` running:
 
 ```sh
- $ cd rfc7748_precomputed/fuzz
  $ make get_fuzzer
 ```
-This will download a Clang compiler with the fuzzer library enabled.
+This will download a Clang compiler with the fuzzer library enabled. 
+Depending on your Internet speed, this may take a few minutes for completing this task.
 
- 4. Compile the fuzz test programs:
-
-```sh
- $ make 
-```
-
+ 
 ## Running Fuzz Test
-After compilation two testing programs will be generated. To test keygen function run:
+After compilation two testing programs will be generated fuzzing against HACL library:
 
 ```sh
- $ ./fuzz_hacl_keygen
- $ ./fuzz_hacl_shared
- $ ./fuzz_gmp_add
+ $ ./bin/fuzz_hacl_keygen
+ $ ./bin/fuzz_hacl_shared
+```
+Each program will stop when an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
+
+Additionally, there are fuzzing tests against the GMP library.
+```sh
+ $ ./bin/gmp_fp25519_add
 ```
 Each program will stop when an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
 
