@@ -1,8 +1,11 @@
+#include <Hacl_Curve25519.h>
 #include <assert.h>
+#include <rfc7748_precomputed.h>
 #include <string.h>
 
-#include <Hacl_Curve25519.h>
-#include <rfc7748_precomputed.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
   if (Size != 2 * 32) return 0;
@@ -28,3 +31,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
   assert(memcmp(shared1, shared2, 32) == 0);
   return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif

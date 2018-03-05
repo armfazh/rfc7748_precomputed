@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.0.2)
 project(rfc7748_precomputed C)
 
 set(EXECUTABLE_OUTPUT_PATH ../bin)
@@ -13,4 +13,5 @@ set(LIBRARY_OUTPUT_PATH ../lib)
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(bench)
+add_subdirectory(fuzz)
 add_subdirectory(samples)
