@@ -3,6 +3,8 @@
  * Institute of Computing.
  * University of Campinas, Brazil.
  *
+ * Copyright (C) 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, version 2 or greater.
@@ -20,15 +22,43 @@
 #include "rfc7748_precomputed.h"
 #include "table_ladder_x25519.h"
 
-static inline void cswap_x64(uint64_t bit, uint64_t *const px,
-                             uint64_t *const py) {
-  int i = 0;
-  uint64_t mask = (uint64_t)0 - bit;
-  for (i = 0; i < NUM_WORDS_ELTFP25519_X64; i++) {
-    uint64_t t = mask & (px[i] ^ py[i]);
-    px[i] = px[i] ^ t;
-    py[i] = py[i] ^ t;
-  }
+static inline void cswap(uint8_t bit, uint64_t *const px,
+                         uint64_t *const py) {
+  uint64_t temp;
+  __asm__ __volatile__(
+    "test %9, %9 ;"
+    "movq %0, %8 ;"
+    "cmovnzq %4, %0 ;"
+    "cmovnzq %8, %4 ;"
+    "movq %1, %8 ;"
+    "cmovnzq %5, %1 ;"
+    "cmovnzq %8, %5 ;"
+    "movq %2, %8 ;"
+    "cmovnzq %6, %2 ;"
+    "cmovnzq %8, %6 ;"
+    "movq %3, %8 ;"
+    "cmovnzq %7, %3 ;"
+    "cmovnzq %8, %7 ;"
+    : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3]),
+      "+r"(py[0]), "+r"(py[1]), "+r"(py[2]), "+r"(py[3]),
+      "=r"(temp)
+    : "r"(bit)
+    : "cc"
+  );
+}
+
+static inline void cselect(uint8_t bit, uint64_t *const px,
+                           uint64_t *const py) {
+  __asm__ __volatile__(
+    "test %4, %4 ;"
+    "cmovnzq %5, %0 ;"
+    "cmovnzq %6, %1 ;"
+    "cmovnzq %7, %2 ;"
+    "cmovnzq %8, %3 ;"
+    : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3])
+    : "r"(bit), "rm"(py[0]), "rm"(py[1]), "rm"(py[2]), "rm"(py[3])
+    : "cc"
+  );
 }
 
 static void x25519_shared_secret_x64(argKey shared, argKey session_key,
@@ -109,8 +139,8 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key,
       sub_EltFp25519_1w_x64(D, X3, Z3);    /* D = (X3-Z3)                   */
       mul_EltFp25519_2w_x64(DACB, AB, DC); /* [DA|CB] = [A|B]*[D|C]         */
 
-      cswap_x64(swap, A, C);
-      cswap_x64(swap, B, D);
+      cselect(swap, A, C);
+      cselect(swap, B, D);
 
       sqr_EltFp25519_2w_x64(AB);         /* [AA|BB] = [A^2|B^2]           */
       add_EltFp25519_1w_x64(X3, DA, CB); /* X3 = (DA+CB)                  */
@@ -195,8 +225,8 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
       k = (64 * i + j - q);
       uint64_t bit = (key[i] >> j) & 0x1;
       swap = swap ^ bit;
-      cswap_x64(swap, Ur1, Ur2);
-      cswap_x64(swap, Zr1, Zr2);
+      cswap(swap, Ur1, Ur2);
+      cswap(swap, Zr1, Zr2);
       swap = bit;
       /** Addition */
       sub_EltFp25519_1w_x64(B, Ur1, Zr1);     /* B = Ur1-Zr1                 */
