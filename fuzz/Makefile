@@ -19,6 +19,7 @@ gmp: gmp_fp25519_a24 \
      gmp_fp25519_sqr \
      gmp_fp25519_mul2 \
      gmp_fp25519_sqr2 \
+     gmp_fp25519_red2 \
      gmp_fp25519_inv \
      gmp_fp25519_fred
 

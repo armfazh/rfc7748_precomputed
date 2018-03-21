@@ -77,13 +77,13 @@ static void x25519_shared_secret_x64(argKey shared, argKey session_key,
       (uint8_t)64 | (private[X25519_KEYSIZE_BYTES - 1] & (uint8_t)0x7F);
 
   /**
-  * As in the draft:
-  * When receiving such an array, implementations of curve25519
-  * MUST mask the most-significant bit in the final byte. This
-  * is done to preserve compatibility with point formats which
-  * reserve the sign bit for use in other protocols and to
-  * increase resistance to implementation fingerprinting
-  **/
+   * As in the RFC-7748:
+   *  When receiving such an array, implementations of X25519
+   *  (but not X448) MUST mask the most significant bit in the final byte.
+   *  This is done to preserve compatibility with point formats that
+   *  reserve the sign bit for use in other protocols and to increase
+   *  resistance to implementation fingerprinting.
+   **/
   session[X25519_KEYSIZE_BYTES - 1] &= (1 << (255 % 8)) - 1;
 
   copy_EltFp25519_1w_x64(Px, X1);
