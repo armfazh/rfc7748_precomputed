@@ -51,8 +51,11 @@ void sqr2_256x256_integer_x64(uint64_t *const c, uint64_t *const a);
 
 void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a);
 
-void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a,
-                             uint64_t *const b);
+void mulxadx_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b);
+
+void mulx_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b);
+
+void mulq_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b);
 
 void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a);
 
@@ -71,8 +74,12 @@ void inv_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a);
 
 void fred_EltFp25519_1w_x64(uint64_t *const c);
 
-#ifdef __cplusplus
-}
+#if defined(__BMI2__) && defined(__ADX__)
+#define mul_256x256_integer_x64 mulxadx_256x256_integer_x64
+#elif defined(__BMI2__)
+#define mul_256x256_integer_x64 mulx_256x256_integer_x64
+#else
+#define mul_256x256_integer_x64 mulq_256x256_integer_x64
 #endif
 
 #define mul_EltFp25519_1w_x64(c, a, b)      \
@@ -102,5 +109,9 @@ void fred_EltFp25519_1w_x64(uint64_t *const c);
   (C)[1] = 0;                        \
   (C)[2] = 0;                        \
   (C)[3] = 0;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* FP25519_X64_H */

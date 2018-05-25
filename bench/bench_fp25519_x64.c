@@ -41,6 +41,10 @@ void bench_fp25519_x64(void) {
   CLOCKS("add", add_EltFp25519_1w_x64(c, a, b));
   CLOCKS("sub", sub_EltFp25519_1w_x64(c, a, b));
   CLOCKS("mul", mul_EltFp25519_1w_x64(c, c, b));
+  CLOCKS("sqr", sqr_256x256_integer_x64(buffer_1w, c));
+  CLOCKS("mul", mul_256x256_integer_x64(buffer_1w, c, b));
+  CLOCKS("mul", mulx_256x256_integer_x64(buffer_1w, c, b));
+  CLOCKS("mul", mulxadx_256x256_integer_x64(buffer_1w, c, b));
   CLOCKS("m24", mul_a24_EltFp25519_1w_x64(c, a));
   CLOCKS("sqr", sqr_EltFp25519_1w_x64(c));
 
