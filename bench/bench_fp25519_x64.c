@@ -37,16 +37,15 @@ void bench_fp25519_x64(void) {
   random_EltFp25519_1w_x64(c);
 
   printf("=== GF(2^255-19) ===\n");
+  printf("== Int256 x64 \n");
+  CLOCKS("mul", mul_256x256_integer_x64(buffer_1w, c, b));
+  CLOCKS("sqr", sqr_256x256_integer_x64(buffer_1w, c));
   printf("== 1-way x64 \n");
   CLOCKS("add", add_EltFp25519_1w_x64(c, a, b));
   CLOCKS("sub", sub_EltFp25519_1w_x64(c, a, b));
   CLOCKS("mul", mul_EltFp25519_1w_x64(c, c, b));
-  CLOCKS("sqr", sqr_256x256_integer_x64(buffer_1w, c));
-  CLOCKS("mul", mul_256x256_integer_x64(buffer_1w, c, b));
-  CLOCKS("mul", mulx_256x256_integer_x64(buffer_1w, c, b));
-  CLOCKS("mul", mulxadx_256x256_integer_x64(buffer_1w, c, b));
-  CLOCKS("m24", mul_a24_EltFp25519_1w_x64(c, a));
   CLOCKS("sqr", sqr_EltFp25519_1w_x64(c));
+  CLOCKS("m24", mul_a24_EltFp25519_1w_x64(c, a));
 
   BENCH /= 10;
   CLOCKS("inv", inv_EltFp25519_1w_x64(c, a));
