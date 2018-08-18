@@ -528,10 +528,9 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
     "mulx 48(%1), %%r10, %%rax; " /* c*C[6] */   "adcx %%r11, %%r10 ;"  "adox 16(%1), %%r10 ;"
     "mulx 56(%1), %%r11, %%rcx; " /* c*C[7] */   "adcx %%rax, %%r11 ;"  "adox 24(%1), %%r11 ;"
     /****************************************/   "adcx %%rbx, %%rcx ;"  "adox  %%rbx, %%rcx ;"
-    "clc ;"
-    "mulx %%rcx, %%rax, %%rcx ; " /* c*C[4] */
-    "adcx %%rax,  %%r8 ;"
-    "adcx %%rcx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0, of=0 */
+    "adcx %%rcx,  %%r8 ;"
+    "adcx %%rbx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
     "adcx %%rbx, %%r10 ;"  "movq %%r10, 16(%0) ;"
     "adcx %%rbx, %%r11 ;"  "movq %%r11, 24(%0) ;"
     "mov     $0, %%ecx ;"	  
@@ -543,10 +542,9 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
     "mulx 112(%1), %%r10, %%rax; " /* c*C[6] */  "adcx %%r11, %%r10 ;"  "adox 80(%1), %%r10 ;"
     "mulx 120(%1), %%r11, %%rcx; " /* c*C[7] */  "adcx %%rax, %%r11 ;"  "adox 88(%1), %%r11 ;"
     /*****************************************/  "adcx %%rbx, %%rcx ;"  "adox  %%rbx, %%rcx ;"
-    "clc ;"
-    "mulx %%rcx, %%rax, %%rcx ; " /* c*C[4] */
-    "adcx %%rax,  %%r8 ;"
-    "adcx %%rcx,  %%r9 ;"  "movq  %%r9, 40(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0, of=0 */
+    "adcx %%rcx,  %%r8 ;"
+    "adcx %%rbx,  %%r9 ;"  "movq  %%r9, 40(%0) ;"
     "adcx %%rbx, %%r10 ;"  "movq %%r10, 48(%0) ;"
     "adcx %%rbx, %%r11 ;"  "movq %%r11, 56(%0) ;"
     "mov     $0, %%ecx ;"	  
@@ -569,9 +567,9 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
     "adcq 16(%1), %%r10 ;"
     "adcq 24(%1), %%r11 ;"
     "adcq     $0, %%rcx ;"
-    "mulx %%rcx, %%rax, %%rcx ;" /* c*C[4] */
-    "addq %%rax,  %%r8 ;"
-    "adcq %%rcx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0 */
+    "addq %%rcx,  %%r8 ;"
+    "adcq    $0,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
     "adcq    $0, %%r10 ;"  "movq %%r10, 16(%0) ;"
     "adcq    $0, %%r11 ;"  "movq %%r11, 24(%0) ;"
     "mov     $0, %%ecx ;"	  
@@ -588,9 +586,9 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
     "adcq 80(%1), %%r10 ;"
     "adcq 88(%1), %%r11 ;"
     "adcq     $0, %%rcx ;"
-    "mulx %%rcx, %%rax, %%rcx ;"  /* c*C[4] */
-    "addq %%rax,  %%r8 ;"
-    "adcq %%rcx,  %%r9 ;"  "movq  %%r9, 40(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0 */
+    "addq %%rcx,  %%r8 ;"
+    "adcq    $0,  %%r9 ;"  "movq  %%r9, 40(%0) ;"
     "adcq    $0, %%r10 ;"  "movq %%r10, 48(%0) ;"
     "adcq    $0, %%r11 ;"  "movq %%r11, 56(%0) ;"
     "mov     $0, %%ecx ;"	  
@@ -878,10 +876,9 @@ void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
     "mulx 48(%1), %%r10, %%rax ;" /* c*C[6] */  "adcx %%r11, %%r10 ;"  "adox 16(%1), %%r10 ;"
     "mulx 56(%1), %%r11, %%rcx ;" /* c*C[7] */  "adcx %%rax, %%r11 ;"  "adox 24(%1), %%r11 ;"
     /****************************************/  "adcx %%rbx, %%rcx ;"  "adox  %%rbx, %%rcx ;"
-    "clc ;"
-    "mulx %%rcx, %%rax, %%rcx ;" /* c*C[4] */
-    "adcx %%rax,  %%r8 ;"
-    "adcx %%rcx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0, of=0 */
+    "adcx %%rcx,  %%r8 ;"
+    "adcx %%rbx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
     "adcx %%rbx, %%r10 ;"  "movq %%r10, 16(%0) ;"
     "adcx %%rbx, %%r11 ;"  "movq %%r11, 24(%0) ;"
     "mov     $0, %%ecx ;"	  
@@ -904,9 +901,9 @@ void red_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
     "adcq 16(%1), %%r10 ;"
     "adcq 24(%1), %%r11 ;"
     "adcq     $0, %%rcx ;"
-    "mulx %%rcx, %%rax, %%rcx ;" /* c*C[4] */
-    "addq %%rax,  %%r8 ;"
-    "adcq %%rcx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
+    "imul %%rdx, %%rcx ;" /* c*C[4], cf=0 */
+    "addq %%rcx,  %%r8 ;"
+    "adcq    $0,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
     "adcq    $0, %%r10 ;"  "movq %%r10, 16(%0) ;"
     "adcq    $0, %%r11 ;"  "movq %%r11, 24(%0) ;"
     "mov     $0, %%ecx ;"	  
