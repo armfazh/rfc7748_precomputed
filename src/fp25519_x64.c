@@ -1005,9 +1005,9 @@ inline void mul_a24_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a) {
     "mulx 24(%1), %%r11, %%rcx ;"  "adcq %%rax, %%r11 ;"
     /***************************/  "adcq    $0, %%rcx ;"
     "movl   $38, %%edx ;" /* 2*c = 38 = 2^256 mod 2^255-19*/
-    "mulx %%rcx, %%rax, %%rcx ;"
-    "addq %%rax,  %%r8 ;"
-    "adcq %%rcx,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
+    "imul %%rdx, %%rcx ;"
+    "addq %%rcx,  %%r8 ;"
+    "adcq    $0,  %%r9 ;"  "movq  %%r9,  8(%0) ;"
     "adcq    $0, %%r10 ;"  "movq %%r10, 16(%0) ;"
     "adcq    $0, %%r11 ;"  "movq %%r11, 24(%0) ;"
     "mov     $0, %%ecx ;"	  
