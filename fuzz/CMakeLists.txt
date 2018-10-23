@@ -42,3 +42,4 @@ endforeach (file ${FUZZ_GMP_SOURCES})
 
 add_custom_target(fuzz)
 add_dependencies(fuzz fuzz_hacl fuzz_gmp)
+set_target_properties(fuzz PROPERTIES EXCLUDE_FROM_ALL true)
