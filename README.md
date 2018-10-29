@@ -138,7 +138,7 @@ Benchmark performance on 64-bit Intel architectures (table entries are clock cyc
 ----
 
 ### License 
-GNU Lesser General Public License v2.1 ([LICENSE](https://www.gnu.org/licenses/lgpl-2.1.txt))
+BSD-3 Clause License ([LICENSE](./LICENSE))
 
 ----
 

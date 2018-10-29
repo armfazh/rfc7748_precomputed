@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 
-include_directories(../util)
+include_directories(../third_party)
 
 add_executable(bench
 	clocks.h
@@ -11,7 +11,7 @@ add_executable(bench
 	bench_x25519.c
 	bench_x448.c
 	bench.c
-	../util/random.c
+		../third_party/random.c
 )
 add_dependencies(bench ${TARGET})
 target_link_libraries(bench	${TARGET})
