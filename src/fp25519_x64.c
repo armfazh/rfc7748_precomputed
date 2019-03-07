@@ -756,9 +756,75 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
 #endif
 }
 
+#define red_EltFp25519_BMI2ADX \
+    /* 2*c = 38 = 2^256 */     \
+    "movl   $38, %%edx;"            "xorl %%eax, %%eax;" \
+    "mulx %%r12, %%rax, %%rcx;"     "adox %%rax,  %%r8;"    "adcx %%rcx,  %%r9;"   "movl $0, %%r12d;" \
+    "mulx %%r13, %%rax, %%rcx;"     "adox %%rax,  %%r9;"    "adcx %%rcx, %%r10;" \
+    "mulx %%r14, %%rax, %%rcx;"     "adox %%rax, %%r10;"    "adcx %%rcx, %%r11;" \
+    "mulx %%r15, %%rax, %%rcx;"     "adox %%rax, %%r11;"    "adcx %%rcx, %%r12;"   "movl $0, %%r13d;" \
+    /*************************/     "adox %%r13, %%r12;" \
+    /* c*C[4], cf=0, of=0 */ \
+    "imul %%rdx, %%r12;" \
+    "addq %%r12,  %%r8;" \
+    "adcq    $0,  %%r9;"  "movq  %%r9,  8(%0);" \
+    "adcq    $0, %%r10;"  "movq %%r10, 16(%0);" \
+    "adcq    $0, %%r11;"  "movq %%r11, 24(%0);" \
+    "movl    $0, %%ecx;"  "cmovc %%edx, %%ecx;" \
+    "addq %%rcx,  %%r8;"  "movq  %%r8,  0(%0);"
+
+
+#define red_EltFp25519_BMI2 \
+    /* 2*c = 38 = 2^256 */ \
+    "movl   $38, %%edx;" \
+    "mulx %%rcx,  %%r8, %%r10;" \
+    "mulx %%r12,  %%r9, %%r11;"    "addq %%r10,  %%r9;" \
+    "mulx %%rax, %%r10, %%rax;"    "adcq %%r11, %%r10;" \
+    "mulx %%r14, %%r11, %%rcx;"    "adcq %%rax, %%r11;" \
+    /*************************/    "adcq    $0, %%rcx;" \
+    "addq  0(%0),  %%r8;" \
+    "adcq  8(%0),  %%r9;" \
+    "adcq 16(%0), %%r10;" \
+    "adcq 24(%0), %%r11;" \
+    "adcq     $0, %%rcx;" \
+    /* c*C[4], cf=0 */ \
+    "imul %%rdx, %%rcx;" \
+    "addq %%rcx,  %%r8;" \
+    "adcq    $0,  %%r9;"    "movq  %%r9,  8(%0);" \
+    "adcq    $0, %%r10;"    "movq %%r10, 16(%0);" \
+    "adcq    $0, %%r11;"    "movq %%r11, 24(%0);" \
+    "movl    $0, %%ecx;" \
+    "cmovc %%edx, %%ecx;" \
+    "addq %%rcx,  %%r8;"    "movq  %%r8,  0(%0);"
+
+#define red_EltFp25519_LEG \
+    "movl $38, %%eax;" "mulq  %%r8;" "movq %%rax,  %%r8;" "movq %%rdx,  %%r9;" \
+    "movl $38, %%eax;" "mulq %%r10;" "movq %%rax, %%r10;" "movq %%rdx, %%r11;" \
+    "movl $38, %%eax;" "mulq %%r12;" "movq %%rax, %%r12;" "movq %%rdx, %%r13;" \
+    "movl $38, %%eax;" "mulq %%r14;" \
+    "addq %%r10,  %%r9;" \
+    "adcq %%r12, %%r11;" \
+    "adcq %%rax, %%r13;" \
+    "adcq    $0, %%rdx;" \
+    "addq  0(%0),  %%r8;" \
+    "adcq  8(%0),  %%r9;" \
+    "adcq 16(%0), %%r11;" \
+    "adcq 24(%0), %%r13;" \
+    "adcq     $0, %%rdx;" \
+    "movl $38, %%eax;" \
+    /* c*c[4], cf=0, of=0 */ \
+    "imulq %%rax, %%rdx;" \
+    "addq %%rdx,  %%r8;" \
+    "adcq    $0,  %%r9;" "movq  %%r9,  8(%0);" \
+    "adcq    $0, %%r11;" "movq %%r11, 16(%0);" \
+    "adcq    $0, %%r13;" "movq %%r13, 24(%0);" \
+    "movl    $0, %%edx;" \
+    "cmovc %%rax, %%rdx;" \
+    "addq %%rdx,  %%r8;" "movq  %%r8,  0(%0);"
+
 
 void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b) {
-#ifndef __BMI2__
+#ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
     "movq   (%1), %%rdx;"
@@ -785,21 +851,7 @@ void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const
     "mulx 16(%2), %%rax, %%rcx;"    "adox %%rax, %%r13;"    "adcx %%rcx, %%r14;"
     "mulx 24(%2), %%rax, %%rcx;"    "adox %%rax, %%r14;"    "adcx %%rcx, %%r15;"   "movl $0, %%edx;"
     /**************************/    "adox %%rdx, %%r15;"
-    /* 2*c = 38 = 2^256 */
-    "movl   $38, %%edx;"            "xorl %%eax, %%eax;"
-    "mulx %%r12, %%rax, %%rcx;"     "adox %%rax,  %%r8;"    "adcx %%rcx,  %%r9;"   "movl $0, %%r12d;"
-    "mulx %%r13, %%rax, %%rcx;"     "adox %%rax,  %%r9;"    "adcx %%rcx, %%r10;"
-    "mulx %%r14, %%rax, %%rcx;"     "adox %%rax, %%r10;"    "adcx %%rcx, %%r11;"
-    "mulx %%r15, %%rax, %%rcx;"     "adox %%rax, %%r11;"    "adcx %%rcx, %%r12;"   "movl $0, %%r13d;"
-    /*************************/     "adox %%r13, %%r12;"
-    /* c*C[4], cf=0, of=0 */
-    "imul %%rdx, %%r12;"
-    "addq %%r12,  %%r8;"
-    "adcq    $0,  %%r9;"  "movq  %%r9,  8(%0);"
-    "adcq    $0, %%r10;"  "movq %%r10, 16(%0);"
-    "adcq    $0, %%r11;"  "movq %%r11, 24(%0);"
-    "movl    $0, %%ecx;"  "cmovc %%edx, %%ecx;"
-    "addq %%rcx,  %%r8;"  "movq  %%r8,  0(%0);"
+    red_EltFp25519_BMI2ADX
     :
     : "r" (c), "r" (a), "r" (b)
     : "memory", "cc", "%rax", "%rcx", "%rdx",
@@ -844,27 +896,7 @@ void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const
     "adcq %%r11, %%r12;"
     "adcq %%r13, %%rax;"
     "adcq    $0, %%r14;"
-    /* 2*c = 38 = 2^256 */
-    "movl   $38, %%edx;"
-    "mulx %%rcx,  %%r8, %%r10;"
-    "mulx %%r12,  %%r9, %%r11;"    "addq %%r10,  %%r9;"
-    "mulx %%rax, %%r10, %%rax;"    "adcq %%r11, %%r10;"
-    "mulx %%r14, %%r11, %%rcx;"    "adcq %%rax, %%r11;"
-    /*************************/    "adcq    $0, %%rcx;"
-    "addq  0(%0),  %%r8;"
-    "adcq  8(%0),  %%r9;"
-    "adcq 16(%0), %%r10;"
-    "adcq 24(%0), %%r11;"
-    "adcq     $0, %%rcx;"
-    /* c*C[4], cf=0 */
-    "imul %%rdx, %%rcx;"
-    "addq %%rcx,  %%r8;"
-    "adcq    $0,  %%r9;"    "movq  %%r9,  8(%0);"
-    "adcq    $0, %%r10;"    "movq %%r10, 16(%0);"
-    "adcq    $0, %%r11;"    "movq %%r11, 24(%0);"
-    "movl    $0, %%ecx;"
-    "cmovc %%edx, %%ecx;"
-    "addq %%rcx,  %%r8;"    "movq  %%r8,  0(%0);"
+    red_EltFp25519_BMI2
     :
     : "r" (c), "r" (a), "r" (b)
     : "memory", "cc", "%rax", "%rcx", "%rdx",
@@ -938,29 +970,7 @@ void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const
     "adcq %%r13, %%r10;"
     "adcq %%r15, %%r12;"
     "adcq    $0, %%rdx;" "movq %%rdx, %%r14;"
-
-    "movl $38, %%eax;" "mulq  %%r8;" "movq %%rax,  %%r8;" "movq %%rdx,  %%r9;"
-    "movl $38, %%eax;" "mulq %%r10;" "movq %%rax, %%r10;" "movq %%rdx, %%r11;"
-    "movl $38, %%eax;" "mulq %%r12;" "movq %%rax, %%r12;" "movq %%rdx, %%r13;"
-    "movl $38, %%eax;" "mulq %%r14;"
-    "addq %%r10,  %%r9;"
-    "adcq %%r12, %%r11;"
-    "adcq %%rax, %%r13;"
-    "adcq    $0, %%rdx;"
-    "addq  0(%0),  %%r8;"
-    "adcq  8(%0),  %%r9;"
-    "adcq 16(%0), %%r11;"
-    "adcq 24(%0), %%r13;"
-    "adcq     $0, %%rdx;"
-    "movl $38, %%eax;"
-    "imulq %%rax, %%rdx;" /* c*c[4], cf=0, of=0 */
-    "addq %%rdx,  %%r8;"
-    "adcq    $0,  %%r9;" "movq  %%r9,  8(%0);"
-    "adcq    $0, %%r11;" "movq %%r11, 16(%0);"
-    "adcq    $0, %%r13;" "movq %%r13, 24(%0);"
-    "movl    $0, %%edx;"
-    "cmovc %%rax, %%rdx;"
-    "addq %%rdx,  %%r8;" "movq  %%r8,  0(%0);"
+    red_EltFp25519_LEG
   :
   : "r" (c), "r" (a), "r" (b)
   : "memory", "cc", "%rax", "%rcx", "%rdx",
@@ -974,42 +984,50 @@ void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
-    "movq   (%1), %%rdx        ;" /* A[0]      */
-    "mulx  8(%1),  %%r8, %%r14 ;" /* A[1]*A[0] */  "xorl %%r15d, %%r15d;"
-    "mulx 16(%1),  %%r9, %%r10 ;" /* A[2]*A[0] */  "adcx %%r14,  %%r9 ;"
-    "mulx 24(%1), %%rax, %%rcx ;" /* A[3]*A[0] */  "adcx %%rax, %%r10 ;"
-    "movq 24(%1), %%rdx        ;" /* A[3]      */
-    "mulx  8(%1), %%r11, %%r12 ;" /* A[1]*A[3] */  "adcx %%rcx, %%r11 ;"
-    "mulx 16(%1), %%rax, %%r13 ;" /* A[2]*A[3] */  "adcx %%rax, %%r12 ;"
-    "movq  8(%1), %%rdx        ;" /* A[1]      */  "adcx %%r15, %%r13 ;"
-    "mulx 16(%1), %%rax, %%rcx ;" /* A[2]*A[1] */  "movq    $0, %%r14 ;"
-    /*******************************************/  "adcx %%r15, %%r14 ;"
+    "movq   (%1), %%rdx;"        /* A[0] */
+    "mulx  8(%1),  %%r8, %%r14;" /* A[1]*A[0] */  "xorl %%r15d, %%r15d;"
+    "mulx 16(%1),  %%r9, %%r10;" /* A[2]*A[0] */  "adcx %%r14,  %%r9;"
+    "mulx 24(%1), %%rax, %%rcx;" /* A[3]*A[0] */  "adcx %%rax, %%r10;"
+    "movq 24(%1), %%rdx;"        /* A[3] */
+    "mulx  8(%1), %%r11, %%r12;" /* A[1]*A[3] */  "adcx %%rcx, %%r11;"
+    "mulx 16(%1), %%rax, %%r13;" /* A[2]*A[3] */  "adcx %%rax, %%r12;"
+    "movq  8(%1), %%rdx;"        /* A[1] */       "adcx %%r15, %%r13;"
+    "mulx 16(%1), %%rax, %%rcx;" /* A[2]*A[1] */  "movq    $0, %%r14;"
+    /******************************************/  "adcx %%r15, %%r14;"
 
     "xorl %%r15d, %%r15d;"
-    "adox %%rax, %%r10 ;"  "adcx  %%r8,  %%r8 ;"
-    "adox %%rcx, %%r11 ;"  "adcx  %%r9,  %%r9 ;"
-    "adox %%r15, %%r12 ;"  "adcx %%r10, %%r10 ;"
-    "adox %%r15, %%r13 ;"  "adcx %%r11, %%r11 ;"
-    "adox %%r15, %%r14 ;"  "adcx %%r12, %%r12 ;"
-                           "adcx %%r13, %%r13 ;"
-                           "adcx %%r14, %%r14 ;"
+    "adox %%rax, %%r10;"  "adcx  %%r8,  %%r8;"
+    "adox %%rcx, %%r11;"  "adcx  %%r9,  %%r9;"
+    "adox %%r15, %%r12;"  "adcx %%r10, %%r10;"
+    "adox %%r15, %%r13;"  "adcx %%r11, %%r11;"
+    "adox %%r15, %%r14;"  "adcx %%r12, %%r12;"
+    /******************/  "adcx %%r13, %%r13;"
+    /******************/  "adcx %%r14, %%r14;"
 
-    "movq   (%1), %%rdx ;"  "mulx %%rdx, %%rax, %%rcx ;" /* A[0]^2 */
-    /********************/  "movq %%rax,  0(%0) ;"
-    "addq %%rcx,  %%r8 ;"   "movq  %%r8,  8(%0) ;"
-    "movq  8(%1), %%rdx ;"  "mulx %%rdx, %%rax, %%rcx ;" /* A[1]^2 */
-    "adcq %%rax,  %%r9 ;"   "movq  %%r9, 16(%0) ;"
-    "adcq %%rcx, %%r10 ;"   "movq %%r10, 24(%0) ;"
-    "movq 16(%1), %%rdx ;"  "mulx %%rdx, %%rax, %%rcx ;" /* A[2]^2 */
-    "adcq %%rax, %%r11 ;"   "movq %%r11, 32(%0) ;"
-    "adcq %%rcx, %%r12 ;"   "movq %%r12, 40(%0) ;"
-    "movq 24(%1), %%rdx ;"  "mulx %%rdx, %%rax, %%rcx ;" /* A[3]^2 */
-    "adcq %%rax, %%r13 ;"   "movq %%r13, 48(%0) ;"
-    "adcq %%rcx, %%r14 ;"   "movq %%r14, 56(%0) ;"
+    "movq  0(%1), %%rdx;"  "mulx %%rdx, %%rax, %%rcx;" /* A[0]^2 */
+    /*******************/  "movq %%rax,  0(%0);"
+    "addq %%rcx,  %%r8;"   "movq  %%r8,  8(%0);"
+    "movq  8(%1), %%rdx;"  "mulx %%rdx, %%rax, %%rcx;" /* A[1]^2 */
+    "adcq %%rax,  %%r9;"   "movq  %%r9, 16(%0);"
+    "adcq %%rcx, %%r10;"   "movq %%r10, 24(%0);"
+    "movq 16(%1), %%rdx;"  "mulx %%rdx, %%rax, %%rcx;" /* A[2]^2 */
+    "adcq %%rax, %%r11;"   // "movq %%r11, 32(%0);"
+    "adcq %%rcx, %%r12;"   // "movq %%r12, 40(%0);"
+    "movq 24(%1), %%rdx;"  "mulx %%rdx, %%rax, %%rcx;" /* A[3]^2 */
+    "adcq %%rax, %%r13;"   // "movq %%r13, 48(%0);"
+    "adcq %%rcx, %%r14;"   // "movq %%r14, 56(%0);"
+
+    "movq %%r14, %%r15;"
+    "movq %%r13, %%r14;"
+    "movq %%r12, %%r13;"
+    "movq %%r11, %%r12;"
+
+    red_EltFp25519_BMI2ADX
   :
   : "r" (c), "r" (a)
   : "memory", "cc", "%rax", "%rcx", "%rdx",
-    "%r8", "%r9", "%r10", "%r11", "%r12", "%r13", "%r14", "%r15"
+     "%r8",  "%r9", "%r10", "%r11",
+    "%r12", "%r13", "%r14", "%r15"
   );
 #else    /* Without ADX */
   __asm__ __volatile__(

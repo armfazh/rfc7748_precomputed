@@ -91,15 +91,11 @@ void fred_EltFp25519_1w_x64(uint64_t *const c);
 }
 #endif
 
-
-
-#define mul1_EltFp25519_1w_x64(c, a, b)      \
-  mul1_256x256_integer_x64(buffer_1w, a, b); \
-  red_EltFp25519_1w_x64(c, buffer_1w);
-
 #define sqr_EltFp25519_1w_x64(a)         \
-  sqr_256x256_integer_x64(buffer_1w, a); \
-  red_EltFp25519_1w_x64(a, buffer_1w);
+  sqr_256x256_integer_x64(a, a); \
+
+
+  // red_EltFp25519_1w_x64(a, buffer_1w);
 
 #define mul_EltFp25519_2w_x64(c, a, b)       \
   mul2_256x256_integer_x64(buffer_2w, a, b); \

@@ -63,8 +63,7 @@ void bench_fp25519_x64(void) {
 
 
   print_bytes(a,32);
-  print_bytes(b,32);
- mul_EltFp25519_1w_x64(c, a, b);
+ sqr_256x256_integer_x64(c, a);
  print_bytes(c,32);
 
 
