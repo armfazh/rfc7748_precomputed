@@ -215,6 +215,8 @@ TEST(FP25519, MULTIPLICATION) {
   mpz_init(gmp_a);
   mpz_init(gmp_b);
   mpz_init(gmp_c);
+  mpz_init(gmp_low);
+  mpz_init(gmp_high);
 
   // two_to_256 = 2^256
   mpz_init_set_ui(two_to_256, 1);
