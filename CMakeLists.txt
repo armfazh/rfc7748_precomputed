@@ -3,6 +3,7 @@ project(rfc7748_precomputed C)
 
 set(EXECUTABLE_OUTPUT_PATH ../bin)
 set(PROJECT_FLAGS "-Wall -Wextra -O3 -pedantic -std=c99 -mbmi2 -march=native -mtune=native")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${PROJECT_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  ${PROJECT_FLAGS}")
 set(TARGET rfc7748_precomputed)
