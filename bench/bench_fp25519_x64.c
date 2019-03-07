@@ -41,12 +41,32 @@ static void random_EltFp25519_1w_x64(uint64_t *A) {
 }
 
 void bench_fp25519_x64(void) {
+
   int BENCH = 3000;
 
   EltFp25519_1w_x64 a, b, c;
   EltFp25519_2w_x64 BB, CC;
   EltFp25519_1w_Buffer_x64 buffer_1w;
   EltFp25519_2w_Buffer_x64 buffer_2w;
+
+
+  a[3] = 0x3f47df857ea7659a;
+  a[2] = 0x42d6b2fbd1c2b20b;
+  a[1] = 0x477aa8802f8cab29;
+  a[0] = 0x16286264ce178fd5;
+
+  b[3] = 0xc51ee1569ed169fd;
+  b[2] = 0xaf07c7fba6fd3335;
+  b[1] = 0x588bfa6b1b4fccf3;
+  b[0] = 0x31afe84f2cf91ce0;
+
+
+
+  print_bytes(a,32);
+  print_bytes(b,32);
+ mul_EltFp25519_1w_x64(c, a, b);
+ print_bytes(c,32);
+
 
   random_EltFp25519_1w_x64(a);
   random_EltFp25519_1w_x64(b);

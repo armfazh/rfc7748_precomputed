@@ -67,7 +67,7 @@ void sqr2_256x256_integer_x64(uint64_t *const c, uint64_t *const a);
 
 void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a);
 
-void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a,
+void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a,
                              uint64_t *const b);
 
 void sqr_256x256_integer_x64(uint64_t *const c, uint64_t *const a);
@@ -91,8 +91,10 @@ void fred_EltFp25519_1w_x64(uint64_t *const c);
 }
 #endif
 
-#define mul_EltFp25519_1w_x64(c, a, b)      \
-  mul_256x256_integer_x64(buffer_1w, a, b); \
+
+
+#define mul1_EltFp25519_1w_x64(c, a, b)      \
+  mul1_256x256_integer_x64(buffer_1w, a, b); \
   red_EltFp25519_1w_x64(c, buffer_1w);
 
 #define sqr_EltFp25519_1w_x64(a)         \

@@ -86,7 +86,6 @@ TEST(FP25519, MUL_VS_INV) {
   int64_t i;
   int64_t cnt = 0;
   EltFp25519_1w_x64 a, b, d;
-  EltFp25519_1w_Buffer_x64 buffer_1w;
 
   for (i = 0; i < TEST_TIMES; i++) {
     random_EltFp25519_1w_x64(a);
@@ -210,32 +209,39 @@ TEST(FP25519, SUBTRACTION) {
 /* Verifies that 0 <= c=a*b < 2^512 */
 TEST(FP25519, MULTIPLICATION) {
   int count = 0;
-  EltFp25519_1w_x64 a, b;
-  EltFp25519_1w_Buffer_x64 get_c, want_c;
+  EltFp25519_1w_x64 a, b, get_c, want_c;
 
-  mpz_t gmp_a, gmp_b, gmp_c;
+  mpz_t gmp_a, gmp_b, gmp_c, gmp_low, gmp_high, two_to_256;
   mpz_init(gmp_a);
   mpz_init(gmp_b);
   mpz_init(gmp_c);
 
+  // two_to_256 = 2^256
+  mpz_init_set_ui(two_to_256, 1);
+  mpz_mul_2exp(two_to_256, two_to_256, 256);
+
   for (int i = 0; i < TEST_TIMES; i++) {
     setzero_EltFp25519_1w_x64(get_c);
-    setzero_EltFp25519_1w_x64(get_c + NUM_WORDS_ELTFP25519_X64);
     setzero_EltFp25519_1w_x64(want_c);
-    setzero_EltFp25519_1w_x64(want_c + NUM_WORDS_ELTFP25519_X64);
 
     random_EltFp25519_1w_x64(a);
     random_EltFp25519_1w_x64(b);
 
-    mul_256x256_integer_x64(get_c, a, b);
+    mul_EltFp25519_1w_x64(get_c, a, b);
 
     mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
     mpz_import(gmp_b, NUM_WORDS_ELTFP25519_X64, -1, sizeof(b[0]), 0, 0, b);
 
     mpz_mul(gmp_c, gmp_a, gmp_b);
-    mpz_export(want_c, NULL, -1, 2 * SIZE_BYTES_FP25519, 0, 0, gmp_c);
+    while (mpz_cmp(gmp_c, two_to_256) >= 0) {
+      mpz_mod_2exp(gmp_low, gmp_c, 256);
+      mpz_div_2exp(gmp_high, gmp_c, 256);
+      mpz_mul_ui(gmp_high, gmp_high, 38);
+      mpz_add(gmp_c, gmp_low, gmp_high);
+    }
+    mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
 
-    ASSERT_EQ(memcmp(get_c, want_c, 2 * SIZE_BYTES_FP25519), 0)
+    ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
         << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
     count++;
   }
@@ -328,58 +334,58 @@ TEST(FP25519, INVERSION) {
 }
 
 /* Verifies that 0<= c=a*b < 2^256 and that c be congruent to a*b mod p */
-TEST(FP25519, REDUCTION) {
-  int count = 0;
-  EltFp25519_1w_x64 a, b, get_c, want_c;
-  EltFp25519_1w_Buffer_x64 buffer_c;
-
-  mpz_t gmp_a, gmp_b, gmp_c, gmp_low, gmp_high, two_to_256;
-  mpz_init(gmp_a);
-  mpz_init(gmp_b);
-  mpz_init(gmp_c);
-  mpz_init(gmp_low);
-  mpz_init(gmp_high);
-
-  // two_to_256 = 2^256
-  mpz_init_set_ui(two_to_256, 1);
-  mpz_mul_2exp(two_to_256, two_to_256, 256);
-
-  for (int i = 0; i < TEST_TIMES; i++) {
-    setzero_EltFp25519_1w_x64(get_c);
-    setzero_EltFp25519_1w_x64(want_c);
-
-    random_EltFp25519_1w_x64(a);
-    random_EltFp25519_1w_x64(b);
-
-    mul_256x256_integer_x64(buffer_c, a, b);
-    red_EltFp25519_1w_x64(get_c, buffer_c);
-
-    mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
-    mpz_import(gmp_b, NUM_WORDS_ELTFP25519_X64, -1, sizeof(b[0]), 0, 0, b);
-    mpz_mul(gmp_c, gmp_a, gmp_b);
-
-    while (mpz_cmp(gmp_c, two_to_256) >= 0) {
-      mpz_mod_2exp(gmp_low, gmp_c, 256);
-      mpz_div_2exp(gmp_high, gmp_c, 256);
-      mpz_mul_ui(gmp_high, gmp_high, 38);
-      mpz_add(gmp_c, gmp_low, gmp_high);
-    }
-    mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
-
-    ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
-        << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
-    count++;
-  }
-  EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
-                               << std::endl;
-
-  mpz_clear(gmp_a);
-  mpz_clear(gmp_b);
-  mpz_clear(gmp_c);
-  mpz_clear(gmp_low);
-  mpz_clear(gmp_high);
-  mpz_clear(two_to_256);
-}
+// TEST(FP25519, REDUCTION) {
+//   int count = 0;
+//   EltFp25519_1w_x64 a, b, get_c, want_c;
+//   EltFp25519_1w_Buffer_x64 buffer_c;
+//
+//   mpz_t gmp_a, gmp_b, gmp_c, gmp_low, gmp_high, two_to_256;
+//   mpz_init(gmp_a);
+//   mpz_init(gmp_b);
+//   mpz_init(gmp_c);
+//   mpz_init(gmp_low);
+//   mpz_init(gmp_high);
+//
+//   // two_to_256 = 2^256
+//   mpz_init_set_ui(two_to_256, 1);
+//   mpz_mul_2exp(two_to_256, two_to_256, 256);
+//
+//   for (int i = 0; i < TEST_TIMES; i++) {
+//     setzero_EltFp25519_1w_x64(get_c);
+//     setzero_EltFp25519_1w_x64(want_c);
+//
+//     random_EltFp25519_1w_x64(a);
+//     random_EltFp25519_1w_x64(b);
+//
+//     mul_256x256_integer_x64(buffer_c, a, b);
+//     red_EltFp25519_1w_x64(get_c, buffer_c);
+//
+//     mpz_import(gmp_a, NUM_WORDS_ELTFP25519_X64, -1, sizeof(a[0]), 0, 0, a);
+//     mpz_import(gmp_b, NUM_WORDS_ELTFP25519_X64, -1, sizeof(b[0]), 0, 0, b);
+//     mpz_mul(gmp_c, gmp_a, gmp_b);
+//
+//     while (mpz_cmp(gmp_c, two_to_256) >= 0) {
+//       mpz_mod_2exp(gmp_low, gmp_c, 256);
+//       mpz_div_2exp(gmp_high, gmp_c, 256);
+//       mpz_mul_ui(gmp_high, gmp_high, 38);
+//       mpz_add(gmp_c, gmp_low, gmp_high);
+//     }
+//     mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
+//
+//     ASSERT_EQ(memcmp(get_c, want_c, SIZE_BYTES_FP25519), 0)
+//         << "a: " << a << "b: " << b << "got:  " << get_c << "want: " << want_c;
+//     count++;
+//   }
+//   EXPECT_EQ(count, TEST_TIMES) << "passed: " << count << "/" << TEST_TIMES
+//                                << std::endl;
+//
+//   mpz_clear(gmp_a);
+//   mpz_clear(gmp_b);
+//   mpz_clear(gmp_c);
+//   mpz_clear(gmp_low);
+//   mpz_clear(gmp_high);
+//   mpz_clear(two_to_256);
+// }
 
 /* Verifies that 0<= c=a24*a < 2^256 and that c be congruent to a24*a mod p */
 TEST(FP25519, MULA24) {

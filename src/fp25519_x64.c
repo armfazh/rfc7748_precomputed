@@ -756,7 +756,64 @@ void red_EltFp25519_2w_x64(uint64_t *const c, uint64_t *const a) {
 #endif
 }
 
-void mul_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b) {
+
+void mul_EltFp25519_1w_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b) {
+#ifdef __BMI2__
+#ifdef __ADX__
+      __asm__ __volatile__(
+        "movq   (%1), %%rdx;" /* A[0] */
+        "mulx  0(%2),  %%r8,  %%r9;" /* A[0]*B[0] */    "xorl %%r13d, %%r13d;"
+        "mulx  8(%2), %%rax, %%r10;" /* A[0]*B[1] */    "adox %%rax,  %%r9;"
+        "mulx 16(%2), %%rax, %%r11;" /* A[0]*B[2] */    "adox %%rax, %%r10;"
+        "mulx 24(%2), %%rax, %%r12;" /* A[0]*B[3] */    "adox %%rax, %%r11;"
+        /******************************************/    "adox %%r13, %%r12;"
+
+        "movq  8(%1), %%rdx;" /* A[1] */                "xorl %%r14d, %%r14d;"
+        "mulx  0(%2), %%rax, %%rcx;" /* A[1]*B[0] */    "adox %%rax,  %%r9;"    "adcx %%rcx, %%r10;"
+        "mulx  8(%2), %%rax, %%rcx;" /* A[1]*B[1] */    "adox %%rax, %%r10;"    "adcx %%rcx, %%r11;"
+        "mulx 16(%2), %%rax, %%rcx;" /* A[1]*B[2] */    "adox %%rax, %%r11;"    "adcx %%rcx, %%r12;"
+        "mulx 24(%2), %%rax, %%rcx;" /* A[1]*B[3] */    "adox %%rax, %%r12;"    "adcx %%rcx, %%r13;"
+        /******************************************/    "adox %%r14, %%r13;"
+
+        "movq 16(%1), %%rdx;" /* A[2] */                "xorl %%r15d, %%r15d;"
+        "mulx  0(%2), %%rax, %%rcx;" /* A[2]*B[0] */    "adox %%rax, %%r10;"    "adcx %%rcx, %%r11;"
+        "mulx  8(%2), %%rax, %%rcx;" /* A[2]*B[1] */    "adox %%rax, %%r11;"    "adcx %%rcx, %%r12;"
+        "mulx 16(%2), %%rax, %%rcx;" /* A[2]*B[2] */    "adox %%rax, %%r12;"    "adcx %%rcx, %%r13;"
+        "mulx 24(%2), %%rax, %%rcx;" /* A[2]*B[3] */    "adox %%rax, %%r13;"    "adcx %%rcx, %%r14;"
+        /******************************************/    "adox %%r15, %%r14;"
+
+        "movq 24(%1), %%rdx;" /* A[3] */                "xorl %%eax, %%eax;"
+        "mulx  0(%2), %%rax, %%rcx;" /* A[3]*B[0] */    "adox %%rax, %%r11;"    "adcx %%rcx, %%r12;"
+        "mulx  8(%2), %%rax, %%rcx;" /* A[3]*B[1] */    "adox %%rax, %%r12;"    "adcx %%rcx, %%r13;"
+        "mulx 16(%2), %%rax, %%rcx;" /* A[3]*B[2] */    "adox %%rax, %%r13;"    "adcx %%rcx, %%r14;"
+        "mulx 24(%2), %%rax, %%rcx;" /* A[3]*B[3] */    "adox %%rax, %%r14;"    "adcx %%rcx, %%r15;"   "movl $0, %%edx;"
+        /******************************************/    "adox %%rdx, %%r15;"
+
+        "movl   $38, %%edx;" /* 2*c = 38 = 2^256 */ "xorl %%eax, %%eax;"
+        "mulx %%r12, %%rax, %%rcx;" /* c*C[4] */  "adox %%rax,  %%r8;"  "adcx %%rcx,  %%r9;"  "movl $0, %%r12d;"
+        "mulx %%r13, %%rax, %%rcx;" /* c*C[5] */  "adox %%rax,  %%r9;"  "adcx %%rcx, %%r10;"
+        "mulx %%r14, %%rax, %%rcx;" /* c*C[6] */  "adox %%rax, %%r10;"  "adcx %%rcx, %%r11;"
+        "mulx %%r15, %%rax, %%rcx;" /* c*C[7] */  "adox %%rax, %%r11;"  "adcx %%rcx, %%r12;"  "movl $0, %%r13d;"
+        /**************************************/  "adox %%r13, %%r12;"
+        "imul %%rdx, %%r12;" /* c*C[4], cf=0, of=0 */
+        "addq %%r12,  %%r8;"
+        "adcq    $0,  %%r9;"  "movq  %%r9,  8(%0);"
+        "adcq    $0, %%r10;"  "movq %%r10, 16(%0);"
+        "adcq    $0, %%r11;"  "movq %%r11, 24(%0);"
+        "movl    $0, %%ecx;"
+        "cmovc %%edx, %%ecx;"
+        "addq %%rcx,  %%r8;"  "movq  %%r8,  0(%0);"
+      :
+      : "r" (c), "r" (a), "r" (b)
+      : "memory", "cc", "%rax", "%rdx", "%rcx",
+         "%r8", "%r9", "%r10", "%r11",
+         "%r12", "%r13", "%r14", "%r15"
+      );
+#endif
+#endif
+}
+
+void mul1_256x256_integer_x64(uint64_t *const c, uint64_t *const a, uint64_t *const b) {
 #ifdef __BMI2__
 #ifdef __ADX__
   __asm__ __volatile__(
