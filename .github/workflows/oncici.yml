@@ -1,16 +1,19 @@
 name: OnCICI
 
 on: [push]
-
-jobs:
+jobs:     
   build:
     name: Building
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
     steps:
     - uses: actions/checkout@master
     - name: Configuring
+      env:
+        CC: ${{ matrix.compiler }}
       run: |
-        apt install -y git build-essential cmake ccache
         mkdir build
         cd build
         cmake ..
