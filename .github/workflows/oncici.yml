@@ -8,28 +8,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Configuring
+    - name: Building
       run: |
         mkdir build
         cd build
         cmake ..
+        make gbench
     - name: Benchmarking
       run: |
         cd build
-        make gbench
-        bin/gbench
+        bin/gbench --benchmark_out=timings.txt --benchmark_out_format=console
+    - uses: actions/upload-artifact@v1
+      with:
+        name: Timings
+        path: build/timings.txt
   test:
     name: Testing
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Configuring
+    - name: Building
       run: |
         mkdir build
         cd build
         cmake ..
+        make tests
     - name: Testing
       run: |
         cd build
-        make tests
         bin/tests
