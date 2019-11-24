@@ -1,9 +1,29 @@
 name: OnCICI
 
 on: [push]
-jobs:     
-  build:
-    name: Building
+jobs:
+build:
+  name: Benchmarking
+  runs-on: ubuntu-latest
+  strategy:
+    matrix:
+      compiler: [gcc, clang]
+  steps:
+  - uses: actions/checkout@master
+  - name: Configuring
+    env:
+      CC: ${{ matrix.compiler }}
+    run: |
+      mkdir build
+      cd build
+      cmake ..
+  - name: Benchmarking
+    run: |
+      cd build
+      make gbench
+      bin/gbench
+  test:
+    name: Testing
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -17,7 +37,8 @@ jobs:
         mkdir build
         cd build
         cmake ..
-    - name: Building
-      run: make
     - name: Testing
-      run: make tests && bin/tests
+      run: |
+        cd build
+        make tests
+        bin/tests

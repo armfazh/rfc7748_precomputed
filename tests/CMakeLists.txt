@@ -7,9 +7,9 @@ include("GNUInstallDirs")
 ExternalProject_Add(googletest-download
   GIT_REPOSITORY    https://github.com/google/googletest.git
   GIT_TAG           release-1.10.0
-  GIT_PROGRESS      true
   GIT_SHALLOW       true
   CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
   TEST_COMMAND      ""
   UPDATE_COMMAND    ""
 )

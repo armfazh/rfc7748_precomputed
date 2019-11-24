@@ -7,9 +7,9 @@ include("GNUInstallDirs")
 ExternalProject_Add(benchmark-download
   GIT_REPOSITORY    https://github.com/google/benchmark.git
   GIT_TAG           v1.5.0
-  GIT_PROGRESS      true
   GIT_SHALLOW       true
   CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
                     -DCMAKE_BUILD_TYPE=Release
                     -DBENCHMARK_ENABLE_TESTING=OFF
                     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
