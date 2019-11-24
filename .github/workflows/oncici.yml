@@ -1,0 +1,19 @@
+name: OnCICI
+
+on: [push]
+
+jobs:
+  build:
+    name: Building
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Configuring
+      run: |
+        mkdir build
+        cd build
+        cmake ..
+    - name: Building
+      run: make
+    - name: Testting
+      run: make tests && bin/test
