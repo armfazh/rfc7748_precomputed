@@ -6,14 +6,9 @@ jobs:
   build:
     name: Benchmarking
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        compiler: [gcc, clang]
     steps:
     - uses: actions/checkout@master
     - name: Configuring
-      env:
-        CC: ${{ matrix.compiler }}
       run: |
         mkdir build
         cd build
@@ -26,14 +21,9 @@ jobs:
   test:
     name: Testing
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        compiler: [gcc, clang]
     steps:
     - uses: actions/checkout@master
     - name: Configuring
-      env:
-        CC: ${{ matrix.compiler }}
       run: |
         mkdir build
         cd build
