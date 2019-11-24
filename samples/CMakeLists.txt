@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 
+include_directories(../include)
 include_directories(../third_party)
 
 add_executable(sample_x25519 sample_x25519.c ../third_party/random.c)

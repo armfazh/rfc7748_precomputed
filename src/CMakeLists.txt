@@ -1,15 +1,29 @@
+cmake_minimum_required(VERSION 3.0.2)
 enable_language(C)
 
-add_library(${TARGET} STATIC
-		../include/rfc7748_precomputed.h
-		../include/fp25519_x64.h
-		../include/fp448_x64.h
-		fp25519_x64.c x25519_x64.c
-		fp448_x64.c x448_x64.c)
+set(PROJECT_FLAGS "-Wall -Wextra -O3 -pedantic -std=c99 -mbmi2 -march=native -mtune=native")
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${PROJECT_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}  ${PROJECT_FLAGS}")
 
-INSTALL(TARGETS ${TARGET} DESTINATION "lib")
-INSTALL(FILES
-		../include/${TARGET}.h
-		../include/fp25519_x64.h
-		../include/fp448_x64.h
-		DESTINATION "include" )
+include_directories(../include)
+set(c_files
+	fp25519_x64.c
+	x25519_x64.c
+	fp448_x64.c
+	x448_x64.c)
+
+add_library(${TARGET} STATIC ${c_files})
+add_library(${TARGET}-shared SHARED ${c_files})
+
+set_target_properties(${TARGET} PROPERTIES
+	OUTPUT_NAME ${TARGET} CLEAN_DIRECT_OUTPUT 1
+	PUBLIC_HEADER ../include/${TARGET}.h)
+
+set_target_properties(${TARGET}-shared PROPERTIES
+	OUTPUT_NAME ${TARGET} CLEAN_DIRECT_OUTPUT 1
+	PUBLIC_HEADER ../include/${TARGET}.h)
+
+INSTALL(TARGETS ${TARGET} PUBLIC_HEADER)
+INSTALL(TARGETS ${TARGET}-shared PUBLIC_HEADER)

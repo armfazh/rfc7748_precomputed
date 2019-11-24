@@ -1,24 +1,32 @@
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 3.0.2)
 enable_language(CXX)
 set(CMAKE_CXX_STANDARD 11)
-include_directories(../third_party)
 
-add_library(all_tests OBJECT
-		test_fp25519_x64.cpp
-		test_fp448_x64.cpp
-		test_x25519.cpp
-		test_x448.cpp )
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -O3 -pedantic -march=native -mtune=native")
+include(ExternalProject)
+include("GNUInstallDirs")
+ExternalProject_Add(googletest-download
+  GIT_REPOSITORY    https://github.com/google/googletest.git
+  GIT_TAG           release-1.10.0
+  GIT_PROGRESS      true
+  GIT_SHALLOW       true
+  CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+  TEST_COMMAND      ""
+  UPDATE_COMMAND    ""
+)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
+link_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 find_package(GMP QUIET)
-# Locate GTest
-find_package(GTest REQUIRED)
-link_directories(${GTEST_LIBRARY_DIRS})
+include_directories(../include)
+include_directories(../third_party)
+set(c_files
+    runTests.cpp
+	test_fp25519_x64.cpp
+	test_fp448_x64.cpp
+	test_x25519.cpp
+	test_x448.cpp
+)
 
-if(GTest_FOUND)
-	include_directories(${GTEST_INCLUDE_DIRS})
-	add_executable(tests runTests.cpp $<TARGET_OBJECTS:all_tests> ../third_party/random.c)
-	add_dependencies(tests ${TARGET})
-	target_link_libraries(tests ${GTEST_LIBRARIES} ${TARGET} pthread gmp)
-endif()
+add_executable(tests ${c_files} ../third_party/random.c)
+add_dependencies(tests ${TARGET} googletest-download)
+target_link_libraries(tests ${TARGET} gtest  pthread gmp)

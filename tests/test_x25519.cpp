@@ -31,11 +31,12 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <gtest/gtest.h>
-#include <rfc7748_precomputed.h>
 #include "random.h"
-
-#define TEST_TIMES 50000
+#include "gtest/gtest.h"
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <rfc7748_precomputed.h>
 
 static std::ostream &operator<<(std::ostream &os, const X25519_KEY &key) {
   int i = 0;
@@ -187,38 +188,41 @@ TEST(X25519, IETF_CFRG0) {
       << "got:  " << bob_shared_secret << "want: " << shared_secret;
 }
 
-TEST(X25519, IETF_CFRG1) {
+TEST(X25519, IETF_CFRG1_0) {
   X25519_KEY k;
   X25519_KEY k_1_times = {0x42, 0x2c, 0x8e, 0x7a, 0x62, 0x27, 0xd7, 0xbc,
                           0xa1, 0x35, 0x0b, 0x3e, 0x2b, 0xb7, 0x27, 0x9f,
                           0x78, 0x97, 0xb8, 0x7b, 0xb6, 0x85, 0x4b, 0x78,
                           0x3c, 0x60, 0xe8, 0x03, 0x11, 0xae, 0x30, 0x79};
+  times(1, k);
+  EXPECT_EQ(memcmp(k, k_1_times, X25519_KEYSIZE_BYTES), 0)
+      << "got:  " << k << "want: " << k_1_times;
+}
 
+TEST(X25519, IETF_CFRG1_1) {
+  X25519_KEY k;
   X25519_KEY k_1000_times = {0x68, 0x4c, 0xf5, 0x9b, 0xa8, 0x33, 0x09, 0x55,
                              0x28, 0x00, 0xef, 0x56, 0x6f, 0x2f, 0x4d, 0x3c,
                              0x1c, 0x38, 0x87, 0xc4, 0x93, 0x60, 0xe3, 0x87,
                              0x5f, 0x2e, 0xb9, 0x4d, 0x99, 0x53, 0x2c, 0x51};
+  times(1000, k);
+  EXPECT_EQ(memcmp(k, k_1000_times, X25519_KEYSIZE_BYTES), 0)
+      << "got:  " << k << "want: " << k_1000_times;
+}
 
+TEST(X25519, DISABLED_IETF_CFRG1_2) {
+  X25519_KEY k;
   X25519_KEY k_1000000_times = {0x7c, 0x39, 0x11, 0xe0, 0xab, 0x25, 0x86, 0xfd,
                                 0x86, 0x44, 0x97, 0x29, 0x7e, 0x57, 0x5e, 0x6f,
                                 0x3b, 0xc6, 0x01, 0xc0, 0x88, 0x3c, 0x30, 0xdf,
                                 0x5f, 0x4d, 0xd2, 0xd2, 0x4f, 0x66, 0x54, 0x24};
-
-  times(1, k);
-  EXPECT_EQ(memcmp(k, k_1_times, X25519_KEYSIZE_BYTES), 0)
-      << "got:  " << k << "want: " << k_1_times;
-
-  times(1000, k);
-  EXPECT_EQ(memcmp(k, k_1000_times, X25519_KEYSIZE_BYTES), 0)
-      << "got:  " << k << "want: " << k_1000_times;
-
   times(1000000, k);
   EXPECT_EQ(memcmp(k, k_1000000_times, X25519_KEYSIZE_BYTES), 0)
       << "got:  " << k << "want: " << k_1000000_times;
 }
 
 TEST(X25519, DIFFIE_HELLMAN) {
-  int64_t i = 0, TIMES = TEST_TIMES;
+  int64_t i = 0, TIMES = 1000;
   int64_t cnt = 0;
 
   for (i = 0; i < TIMES; i++) {

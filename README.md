@@ -1,8 +1,8 @@
 
-# How to (pre-)compute a ladder 
+# How to (pre-)compute a ladder
 
 
-This is a C-language software library that provides optimized implementations of the Diffie-Hellman functions known as X25519 and X448 ([RFC-7748](https://datatracker.ietf.org/doc/rfc7748/)) for 64-bit architectures. 
+This is a C-language software library that provides optimized implementations of the Diffie-Hellman functions known as X25519 and X448 ([RFC-7748](https://datatracker.ietf.org/doc/rfc7748/)) for 64-bit architectures.
 
 This source code is part of the research work titled: _"How to (pre-)compute a ladder"_ by the authors:
  * [Thomaz Oliveira](http://dblp.uni-trier.de/pers/hd/o/Oliveira:Thomaz), Computer Science Department, Cinvestav-IPN, Mexico.
@@ -26,17 +26,17 @@ To cite this work use:
 
 ```tex
 @inproceedings{oliveira_sac2017,
-    author    = {Thomaz Oliveira and Julio L\'opez and 
-                 H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and 
+    author    = {Thomaz Oliveira and Julio L\'opez and
+                 H\"useyin H{\i}\c{s}{\i}l and Armando Faz-Hern\'andez and
                  Francisco Rodr\'iguez-Henr\'iquez},
     editor    = {Adams, Carlisle and Camenisch, Jan},
     title     = {How to (pre-)compute a ladder},
-    booktitle = {Selected Areas in Cryptography – SAC 2017: 
+    booktitle = {Selected Areas in Cryptography – SAC 2017:
                  24th International Conference, Ottawa, Ontario,
                  Canada, August 16 - 18, 2017, Revised Selected Papers},
     year      = {2018},
     publisher = {Springer International Publishing},
-    pages     = "172-191",
+    pages     = {172-191},
     doi       = {10.1007/978-3-319-72565-9_9},
 }
 ```
@@ -53,15 +53,10 @@ To cite this work use:
 
 ### Pre-requirements
 
-This library is a standalone C-language code. However, it is used the [Google Test](https://github.com/google/googletest) C++ library to perform unit tests.
-You can install `gtest` library in your system as follows:
- 
-```sh
- # dnf install gtest-devel
-```
-Also, a C++ compiler is needed to compile the test program.
-
-----
+This library is a standalone C-language code. However, for tests we use C++ code.
+- C and C++ compilers.
+- git
+- cmake
 
 ### Compilation
 First, clone the repository and configure project using the [CMake](https://cmake.org/) tool:
@@ -73,13 +68,13 @@ First, clone the repository and configure project using the [CMake](https://cmak
  $ cd build
 ```
 
-To specify an alternative C/C++ compiler can be set as follows:
+To specify an alternative C/C++ compiler set the following variables:
 
 ```sh
  $ CC=gcc CXX=g++ cmake ..
 ```
 
-Also, to specify a custom install directory use:
+Also, to specify a custom install directory (`install_dir`) use:
 
 ```sh
  $ cmake -DCMAKE_INSTALL_PREFIX=install_dir ..
@@ -88,27 +83,39 @@ Also, to specify a custom install directory use:
 Finally, compile and install:
 
 ```sh
- $ make 
+ $ make
  $ make install (optional)
 ```
 
 ----
 
 ### Running Companion Programs
-Once compilation was done, you can run three companion programs. For running the benchmark program use:
-```sh
- $ bin/bench
-```
-
-For running the tests program use:
-```sh
- $ bin/tests
-```
+Once compilation was done, you can run some companion programs.
 
 For running a sample program use:
 ```sh
  $ bin/sample_x25519
  $ bin/sample_x448
+```
+
+For running a performance benchmark (in clock cycles) use:
+```sh
+ $ make bench-cycles
+ $ bin/bench-cycles
+```
+
+For running the [Google benchmark](https://github.com/google/benchmark) tool use:
+
+```sh
+ $ make gbench
+ $ bin/gbench --benchmark_repetitions=10 --benchmark_display_aggregates_only=true
+```
+
+For running the [Google Test](https://github.com/google/googletest) tool use:
+
+```sh
+ $ make tests
+ $ bin/tests
 ```
 
 #### Fuzzing Test
@@ -118,14 +125,14 @@ In the *fuzz* folder, there are several tests against  `gmp` library and the `HA
 ----
 
 
-### Timings 
+### Timings
 Benchmark performance on 64-bit Intel architectures (table entries are clock cycles).
 
 | X25519 | Haswell | Skylake |
 | ------ | ------:| ------:|
 | Key Generation |  92,400 |  69,500 |
 | Shared Secret  | 145,800 | 108,700 |
- 	 	 	
+
 | X448 | Haswell | Skylake |
 | ------ | ------:| ------:|
 | Key Generation | 401,902 | 322,040 |
@@ -133,18 +140,17 @@ Benchmark performance on 64-bit Intel architectures (table entries are clock cyc
 
 **Haswell** is a Core i7-4770 processor.
 
-**Skylake** is a Core i7-6700K processor. 
+**Skylake** is a Core i7-6700K processor.
 
 ----
 
-### License 
+### License
 BSD-3 Clause License ([LICENSE](./LICENSE))
 
 ----
 
-### Contact 
+### Contact
 
-To report some issues or comments of this project, please use the issues webpage [[here](https://github.com/armfazh/rfc7748_precomputed/issues)]. 
+To report some issues or comments of this project, please use the issues webpage [[here](https://github.com/armfazh/rfc7748_precomputed/issues)].
 
 ----
-
