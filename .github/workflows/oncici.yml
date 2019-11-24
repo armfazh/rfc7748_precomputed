@@ -7,13 +7,14 @@ jobs:
     name: Building
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@master
     - name: Configuring
       run: |
+        apt install -y git build-essential cmake ccache
         mkdir build
         cd build
         cmake ..
     - name: Building
       run: make
-    - name: Testting
-      run: make tests && bin/test
+    - name: Testing
+      run: make tests && bin/tests
