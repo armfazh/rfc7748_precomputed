@@ -9,6 +9,7 @@ ExternalProject_Add(googletest-download
   URL            "https://api.github.com/repos/google/googletest/tarball/${GTEST_VERSION}"
   CMAKE_ARGS     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
                  -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
   TEST_COMMAND   ""
   UPDATE_COMMAND ""
 )

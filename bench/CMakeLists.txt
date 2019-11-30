@@ -8,6 +8,7 @@ set(GBENCH_VERSION "v1.5.0")
 ExternalProject_Add(benchmark-download
   URL            "https://api.github.com/repos/google/benchmark/tarball/${GBENCH_VERSION}"
   CMAKE_ARGS     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                 -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
                  -DCMAKE_POSITION_INDEPENDENT_CODE=ON
                  -DCMAKE_BUILD_TYPE=Release
                  -DBENCHMARK_ENABLE_TESTING=OFF

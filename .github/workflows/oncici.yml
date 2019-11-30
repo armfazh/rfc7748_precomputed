@@ -6,9 +6,15 @@ jobs:
   build:
     name: Benchmarking
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: [ [gcc,g++], [clang,clang++] ]
     steps:
     - uses: actions/checkout@master
     - name: Building
+      env:
+        CC: ${{ matrix.compiler[0] }}
+        CXX: ${{ matrix.compiler[1] }}
       run: |
         mkdir build
         cd build
@@ -17,11 +23,11 @@ jobs:
     - name: Benchmarking
       run: |
         cd build
-        bin/gbench --benchmark_out=timings.txt --benchmark_out_format=console
+        bin/gbench --benchmark_out=timings_${{ matrix.compiler[0] }}.txt --benchmark_out_format=console
     - uses: actions/upload-artifact@v1
       with:
         name: Timings
-        path: build/timings.txt
+        path: build/timings_${{ matrix.compiler[0] }}.txt
   test:
     name: Testing
     runs-on: ubuntu-latest
