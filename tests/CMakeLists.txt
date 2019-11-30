@@ -4,14 +4,13 @@ set(CMAKE_CXX_STANDARD 11)
 
 include(ExternalProject)
 include("GNUInstallDirs")
+set(GTEST_VERSION "release-1.10.0")
 ExternalProject_Add(googletest-download
-  GIT_REPOSITORY    https://github.com/google/googletest.git
-  GIT_TAG           release-1.10.0
-  GIT_SHALLOW       true
-  CMAKE_ARGS        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
-                    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-  TEST_COMMAND      ""
-  UPDATE_COMMAND    ""
+  URL            "https://api.github.com/repos/google/googletest/tarball/${GTEST_VERSION}"
+  CMAKE_ARGS     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}
+                 -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+  TEST_COMMAND   ""
+  UPDATE_COMMAND ""
 )
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_INCLUDEDIR})
 link_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
@@ -21,10 +20,10 @@ include_directories(../include)
 include_directories(../third_party)
 set(c_files
     runTests.cpp
-	test_fp25519_x64.cpp
-	test_fp448_x64.cpp
-	test_x25519.cpp
-	test_x448.cpp
+    test_fp25519_x64.cpp
+    test_fp448_x64.cpp
+    test_x25519.cpp
+    test_x448.cpp
 )
 
 add_executable(tests ${c_files} ../third_party/random.c)
