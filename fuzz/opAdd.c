@@ -31,62 +31,52 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <assert.h>
-#include <fp25519_x64.h>
-#include <gmp.h>
-#include <string.h>
+#include "fp.h"
 
 /**
- * Verifies that 0 <= c=a-b < 2^256 and that c be congruent to a-b mod p
+ * Verifies that 0 <= c=a+b < 2^K and that c be congruent to a+b mod p
  * @param Data Random binary data.
- * @param Size Non-trivial input size is set -max_len=64
+ * @param Size Non-trivial input size is set -max_len=2*N
  * @return Always return 0 in case of success.
  */
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int LLVMFuzzerTestOneInput(const uint8_t *Data, size_t Size) {
-  if (Size != 2 * 32) return 0;
+int LLVMFuzzerTestOneInput(const uint8_t* Data, size_t Size) {
+  if (Size != 2 * N) return 0;
+  TYPE a, b, get_c, want_c;
 
-  EltFp25519_1w_x64 a, b, get_c, want_c;
-
-  mpz_t gmp_a, gmp_b, gmp_c, two_prime, zero;
+  mpz_t gmp_a, gmp_b, gmp_c, two_prime, two_to_K;
   mpz_init(gmp_a);
   mpz_init(gmp_b);
   mpz_init(gmp_c);
+  getTwoPrime(two_prime);  // two_prime = 2p
+  getTwoPower(two_to_K);   // two_to_K = 2^K
 
-  // two_prime = 2^256-38
-  mpz_init_set_ui(two_prime, 1);
-  mpz_mul_2exp(two_prime, two_prime, 256);
-  mpz_sub_ui(two_prime, two_prime, 38);
+  memcpy(a, Data + 0 * N, N);
+  memcpy(b, Data + 1 * N, N);
 
-  // zero = 0
-  mpz_init_set_ui(zero, 0);
+  FpZero(get_c);
+  FpZero(want_c);
 
-  memcpy(a, Data + 0, 32);
-  memcpy(b, Data + 32, 32);
+  FpAdd(get_c, a, b);
 
-  setzero_EltFp25519_1w_x64(get_c);
-  setzero_EltFp25519_1w_x64(want_c);
+  mpz_import(gmp_a, N, -1, sizeof(Data[0]), 0, 0, Data + 0 * N);
+  mpz_import(gmp_b, N, -1, sizeof(Data[0]), 0, 0, Data + 1 * N);
 
-  sub_EltFp25519_1w_x64(get_c, a, b);
-
-  mpz_import(gmp_a, SIZE_BYTES_FP25519, -1, sizeof(Data[0]), 0, 0, Data + 0);
-  mpz_import(gmp_b, SIZE_BYTES_FP25519, -1, sizeof(Data[0]), 0, 0, Data + 32);
-
-  mpz_sub(gmp_c, gmp_a, gmp_b);
-  while (mpz_cmp(gmp_c, zero) < 0) {
-    mpz_add(gmp_c, gmp_c, two_prime);
+  mpz_add(gmp_c, gmp_a, gmp_b);
+  while (mpz_cmp(gmp_c, two_to_K) >= 0) {
+    mpz_sub(gmp_c, gmp_c, two_prime);
   }
-  mpz_export(want_c, NULL, -1, SIZE_BYTES_FP25519, 0, 0, gmp_c);
-  assert(memcmp(get_c, want_c, SIZE_BYTES_FP25519) == 0);
+  mpz_export(want_c, NULL, -1, N, 0, 0, gmp_c);
+  assert(memcmp(get_c, want_c, N) == 0);
 
   mpz_clear(gmp_a);
   mpz_clear(gmp_b);
   mpz_clear(gmp_c);
   mpz_clear(two_prime);
-  mpz_clear(zero);
+  mpz_clear(two_to_K);
   return 0;
 }
 
