@@ -676,41 +676,89 @@ inline void sub_EltFp448_1w_x64(uint64_t *c, uint64_t *a, uint64_t *b) {
 }
 
 void mul_a24_EltFp448_1w_x64(uint64_t *c, uint64_t *a) {
-#ifdef __BMI2__
-  /**
-  * a24 = (A+2)/4 = (156326+2)/4 = 39082
-  **/
-  const uint64_t a24 = 39082;
+  const uint64_t a24 = 39082;  // a24 = (A+2)/4 = (156326+2)/4 = 39082
+#if __BMI2__
   __asm__ __volatile__(
-  "movq %2, %%rdx ;"
-  "mulx   (%1), %%rax,  %%r8 ;"  "movq %%rax,   (%0) ;"
-  "mulx  8(%1), %%rcx,  %%r9 ;"  "movq %%rcx,  8(%0) ;"
-  "mulx 16(%1), %%rax, %%r10 ;"  "movq %%rax, 16(%0) ;"
-  "mulx 24(%1), %%rcx, %%r11 ;"  "movq %%rcx, 24(%0) ;"
-  "mulx 32(%1), %%rax, %%r12 ;"  "movq %%rax, 32(%0) ;"
-  "mulx 40(%1), %%rcx, %%r13 ;"  "movq %%rcx, 40(%0) ;"
-  "mulx 48(%1), %%rax, %%rdx ;"  "movq %%rax, 48(%0) ;"
+      "movq %2, %%rdx;"
+      "mulx  0(%1), %%rcx,  %%r8;"
+      "mulx  8(%1), %%rax,  %%r9; addq %%rax,  %%r8;"
+      "mulx 16(%1), %%rax, %%r10; adcq %%rax,  %%r9;"
+      "mulx 24(%1), %%rax, %%r11; adcq %%rax, %%r10;"
+      "mulx 32(%1), %%rax, %%r12; adcq %%rax, %%r11;"
+      "mulx 40(%1), %%rax, %%r13; adcq %%rax, %%r12;"
+      "mulx 48(%1), %%rax, %%rdx; adcq %%rax, %%r13;"
+      "adcq     $0, %%rdx;"
 
-  "movq %%rdx,  %%rcx ;"
-  "shlq   $32,  %%rcx ;"
-  "addq %%rcx,  %%r10 ;"
-  "adcq    $0,  %%r11 ;"
+      /**
+       * ( c7) + (c6,...,c0)
+       * (rdx)
+       */
+      "movq %%rdx,%%rax; shlq $32,%%rax;"
+      "addq %%rdx,%%rcx; movq  $0,%%rdx;"
+      "adcq    $0, %%r8;"
+      "adcq    $0, %%r9;"
+      "adcq %%rax,%%r10;"
+      "adcq    $0,%%r11;"
+      "adcq    $0,%%r12;"
+      "adcq    $0,%%r13;"
+      "adcq    $0,%%rdx;"
 
-  "addq %%rdx,   (%0) ;"
-  "adcq  %%r8,  8(%0) ;"
-  "adcq  %%r9, 16(%0) ;"
-  "adcq %%r10, 24(%0) ;"
-  "adcq %%r11, 32(%0) ;"
-  "adcq %%r12, 40(%0) ;"
-  "adcq %%r13, 48(%0) ;"
-  :
-  : "r" (c), "r" (a), "r" (a24)
-  : "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11", "%r12", "%r13"
-  );
+      "movq %%rdx,%%rax; shlq $32,%%rax;"
+      "addq %%rdx,%%rcx; movq %%rcx, 0(%0);"
+      "adcq    $0, %%r8; movq  %%r8, 8(%0);"
+      "adcq    $0, %%r9; movq  %%r9,16(%0);"
+      "adcq %%rax,%%r10; movq %%r10,24(%0);"
+      "adcq    $0,%%r11; movq %%r11,32(%0);"
+      "adcq    $0,%%r12; movq %%r12,40(%0);"
+      "adcq    $0,%%r13; movq %%r13,48(%0);"
+      :
+      : "r"(c), "r"(a), "r"(a24)
+      : "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11", "%r12",
+        "%r13", "%r15");
 #else /* Without BMI2 */
-  /**
-* TODO: Multiplications using MULQ instruction.
-**/
+  __asm__ __volatile__(
+      "movq %2, %%r15;"
+      "movq  0(%1),%%rax; mulq %%r15;"
+      "movq %%rax, %%rcx;                movq %%rdx,  %%r8;"
+      "movq  8(%1),%%rax; mulq %%r15;"
+      "addq %%rax,  %%r8; adcq $0,%%rdx; movq %%rdx,  %%r9;"
+      "movq 16(%1),%%rax; mulq %%r15;"
+      "addq %%rax,  %%r9; adcq $0,%%rdx; movq %%rdx, %%r10;"
+      "movq 24(%1),%%rax; mulq %%r15;"
+      "addq %%rax, %%r10; adcq $0,%%rdx; movq %%rdx, %%r11;"
+      "movq 32(%1),%%rax; mulq %%r15;"
+      "addq %%rax, %%r11; adcq $0,%%rdx; movq %%rdx, %%r12;"
+      "movq 40(%1),%%rax; mulq %%r15;"
+      "addq %%rax, %%r12; adcq $0,%%rdx; movq %%rdx, %%r13;"
+      "movq 48(%1),%%rax; mulq %%r15;"
+      "addq %%rax, %%r13; adcq $0,%%rdx;"
+
+      /**
+       * ( c7) + (c6,...,c0)
+       * (rdx)
+       */
+      "movq %%rdx,%%rax; shlq $32,%%rax;"
+      "addq %%rdx,%%rcx; movq  $0,%%rdx;"
+      "adcq    $0, %%r8;"
+      "adcq    $0, %%r9;"
+      "adcq %%rax,%%r10;"
+      "adcq    $0,%%r11;"
+      "adcq    $0,%%r12;"
+      "adcq    $0,%%r13;"
+      "adcq    $0,%%rdx;"
+
+      "movq %%rdx,%%rax; shlq $32,%%rax;"
+      "addq %%rdx,%%rcx; movq %%rcx, 0(%0);"
+      "adcq    $0, %%r8; movq  %%r8, 8(%0);"
+      "adcq    $0, %%r9; movq  %%r9,16(%0);"
+      "adcq %%rax,%%r10; movq %%r10,24(%0);"
+      "adcq    $0,%%r11; movq %%r11,32(%0);"
+      "adcq    $0,%%r12; movq %%r12,40(%0);"
+      "adcq    $0,%%r13; movq %%r13,48(%0);"
+      :
+      : "r"(c), "r"(a), "r"(a24)
+      : "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11", "%r12",
+        "%r13", "%r15");
 #endif
 }
 
