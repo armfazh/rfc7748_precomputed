@@ -38,43 +38,28 @@
 #include "rfc7748_precomputed.h"
 #include "table_ladder_x25519.h"
 
-static inline void cswap(uint8_t bit, uint64_t *const px,
-                         uint64_t *const py) {
+static inline void cswap(uint8_t bit, uint64_t *const px, uint64_t *const py) {
   uint64_t temp;
   __asm__ __volatile__(
-    "test %9, %9 ;"
-    "movq %0, %8 ;"
-    "cmovnzq %4, %0 ;"
-    "cmovnzq %8, %4 ;"
-    "movq %1, %8 ;"
-    "cmovnzq %5, %1 ;"
-    "cmovnzq %8, %5 ;"
-    "movq %2, %8 ;"
-    "cmovnzq %6, %2 ;"
-    "cmovnzq %8, %6 ;"
-    "movq %3, %8 ;"
-    "cmovnzq %7, %3 ;"
-    "cmovnzq %8, %7 ;"
-    : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3]),
-      "+r"(py[0]), "+r"(py[1]), "+r"(py[2]), "+r"(py[3]),
-      "=r"(temp)
-    : "r"(bit)
-    : "cc"
-  );
+      "test %9, %9;"
+      "movq %0, %8; cmovnzq %4, %0; cmovnzq %8, %4;"
+      "movq %1, %8; cmovnzq %5, %1; cmovnzq %8, %5;"
+      "movq %2, %8; cmovnzq %6, %2; cmovnzq %8, %6;"
+      "movq %3, %8; cmovnzq %7, %3; cmovnzq %8, %7;"
+      : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3]), "+r"(py[0]),
+        "+r"(py[1]), "+r"(py[2]), "+r"(py[3]), "=r"(temp)
+      : "r"(bit)
+      : "cc");
 }
 
 static inline void cselect(uint8_t bit, uint64_t *const px,
                            uint64_t *const py) {
   __asm__ __volatile__(
-    "test %4, %4 ;"
-    "cmovnzq %5, %0 ;"
-    "cmovnzq %6, %1 ;"
-    "cmovnzq %7, %2 ;"
-    "cmovnzq %8, %3 ;"
-    : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3])
-    : "r"(bit), "rm"(py[0]), "rm"(py[1]), "rm"(py[2]), "rm"(py[3])
-    : "cc"
-  );
+      "test %4, %4;"
+      "cmovnzq %5, %0; cmovnzq %6, %1; cmovnzq %7, %2; cmovnzq %8, %3;"
+      : "+r"(px[0]), "+r"(px[1]), "+r"(px[2]), "+r"(px[3])
+      : "r"(bit), "rm"(py[0]), "rm"(py[1]), "rm"(py[2]), "rm"(py[3])
+      : "cc");
 }
 
 static void x25519_shared_secret_x64(argKey shared, argKey session_key,
