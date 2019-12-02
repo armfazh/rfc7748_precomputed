@@ -762,17 +762,11 @@ void mul_a24_EltFp448_1w_x64(uint64_t *c, uint64_t *a) {
 #endif
 }
 
-/**
- *
- * @param pC
- * @param pA
- * @param only_inverse
- */
 void inv_EltFp448_1w_x64(uint64_t *__restrict pC, uint64_t *__restrict pA) {
-#define sqrn_EltFp448_1w_x64(a, times)\
-  counter = times;\
-  while (counter-- > 0) {\
-      sqr_EltFp448_1w_x64(a);\
+#define sqrn_EltFp448_1w_x64(a, times) \
+  counter = times;                     \
+  while (counter-- > 0) {              \
+    sqr_EltFp448_1w_x64(a);            \
   }
 
   EltFp448_1w_x64 x0, x1;
@@ -837,14 +831,9 @@ void inv_EltFp448_1w_x64(uint64_t *__restrict pC, uint64_t *__restrict pA) {
 }
 
 void fred_EltFp448_1w_x64(uint64_t *c) {
-  EltFp448_1w_x64 p = {
-      0xffffffffffffffff,
-      0xffffffffffffffff,
-      0xffffffffffffffff,
-      0xfffffffeffffffff,
-      0xffffffffffffffff,
-      0xffffffffffffffff,
-      0xffffffffffffffff
-  };
+  EltFp448_1w_x64 p = {0xffffffffffffffff, 0xffffffffffffffff,
+                       0xffffffffffffffff, 0xfffffffeffffffff,
+                       0xffffffffffffffff, 0xffffffffffffffff,
+                       0xffffffffffffffff};
   sub_EltFp448_1w_x64(c, c, p);
 }
