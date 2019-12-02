@@ -1,7 +1,6 @@
 ## Pre-requirements
 
-Fuzzing test is performed using `libFuzzer` library available [here](https://llvm.org/docs/LibFuzzer.html).
-
+Fuzzing test is performed using [`libFuzzer`](https://llvm.org/docs/LibFuzzer.html) library available in Clang v6 or major.
 
 ----
 
@@ -17,15 +16,6 @@ Fuzzing test is performed using `libFuzzer` library available [here](https://llv
  $ make fuzz
 ```
 
- 3. You can get `libFuzzer` running:
-
-```sh
- $ make get_fuzzer
-```
-This will download a Clang compiler with the fuzzer library enabled. 
-Depending on your Internet speed, this may take a few minutes for completing this task.
-
- 
 ## Running Fuzz Test
 After compilation two testing programs will be generated fuzzing against HACL library:
 
@@ -35,9 +25,9 @@ After compilation two testing programs will be generated fuzzing against HACL li
 ```
 Each program will stop when an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
 
-Additionally, there are fuzzing tests against the GMP library.
+Additionally, there are fuzzing tests for each field operation against the GMP library.
 ```sh
- $ ./bin/gmp_fp25519_add
+ $ ./bin/fuzz25519_opAdd
 ```
 Each program will stop when an error is found; otherwise, it will run forever. You can stop the execution using CTRL+C (^C).
 

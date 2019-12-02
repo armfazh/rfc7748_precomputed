@@ -22,7 +22,7 @@ link_directories(${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 include_directories(../include)
 include_directories(../third_party)
 
-add_executable(bench-cycles
+add_executable(bench
     clocks.h
     clocks.c
     bench.h
@@ -33,8 +33,8 @@ add_executable(bench-cycles
     bench.c
     ../third_party/random.c
 )
-add_dependencies(bench-cycles ${TARGET})
-target_link_libraries(bench-cycles ${TARGET})
+add_dependencies(bench ${TARGET})
+target_link_libraries(bench ${TARGET})
 
 add_executable(gbench gbench.cpp ../third_party/random.c)
 add_dependencies(gbench ${TARGET} benchmark-download)

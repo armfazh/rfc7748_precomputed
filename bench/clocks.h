@@ -90,11 +90,11 @@
                                                              \
     unsigned i;                                              \
     uint64_t start, end;                                     \
-    const unsigned iterations = 100000;                      \
+    const unsigned iterations = 10000;                       \
     uint64_t start_c, end_c;                                 \
                                                              \
     /* Load the caches*/                                     \
-    for (i = 0; i < 1000; ++i) {                             \
+    for (i = 0; i < 500; ++i) {                              \
       FUNCTION;                                              \
     }                                                        \
                                                              \

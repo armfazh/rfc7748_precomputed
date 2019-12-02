@@ -419,136 +419,161 @@ void sqr_448x448_integer_x64(uint64_t *c, uint64_t *a) {
 
 void red_EltFp448_1w_x64(uint64_t *c, uint64_t *a) {
 #if __ADX__
-  __asm__ __volatile__ (
-    /* [c13,c12,c11,c10] mod p  */
-    "movq  80(%1),  %%r8 ;"  "movq  %%r8, %%rax ;"
-    "movq  88(%1),  %%r9 ;"  "movq  %%r9, %%rbx ;"
-    "movq  96(%1), %%r10 ;"  "movq %%r10, %%rcx ;"
-    "movq 104(%1), %%r11 ;"  "movq %%r11, %%rdx ;"
-    "shrq $32, %%r8 ;"
-    "shlq $32, %%r8 ;"
-    "movl  $0, 84(%1) ;"
+  __asm__ __volatile__(
+      /**
+       * (   ,2C13,2C12,2C11,2C10|C10,C9,C8, C7) + (C6,...,C0)
+       * (r14, r13, r12, r11,     r10,r9,r8,r15)
+       */
+      "movq 80(%1),%%rax; movq %%rax,%%r10;"
+      "movq $0xffffffff00000000, %%r8;"
+      "andq %%r8,%%r10;"
 
-    "shrdq $32, %%rbx, %%rax ;"
-    "shrdq $32, %%rcx, %%rbx ;"
-    "shrdq $32, %%rdx, %%rcx ;"
-    "shrq  $32, %%rdx ;"
+      "movq $0,%%r14;"
+      "movq 104(%1),%%r13; shldq $1,%%r13,%%r14;"
+      "movq  96(%1),%%r12; shldq $1,%%r12,%%r13;"
+      "movq  88(%1),%%r11; shldq $1,%%r11,%%r12;"
+      "movq  72(%1), %%r9; shldq $1,%%r10,%%r11;"
+      "movq  64(%1), %%r8; shlq  $1,%%r10;"
+      "movq $0xffffffff,%%r15; andq %%r15,%%rax; orq %%rax,%%r10;"
+      "movq  56(%1),%%r15;"
 
-    "clc ;"
-    "adcx 24(%1),  %%r8 ;"  "movq   %%r8, 24(%0) ;"
-    "adcx 32(%1),  %%r9 ;"  "movq   %%r9, 32(%0) ;"
-    "adcx 40(%1), %%r10 ;"  "movq  %%r10, 40(%0) ;"
-    "adcx 48(%1), %%r11 ;"  "movq  %%r11, 48(%0) ;"
-    "adcx 56(%1), %%rax ;"  "movq  %%rax,   %%r8 ;"
-    "adcx 64(%1), %%rbx ;"  "movq  %%rbx,   %%r9 ;"
-    "adcx 72(%1), %%rcx ;"  "movq  %%rcx,  %%r10 ;"
-    "adcx 80(%1), %%rdx ;"  "movq  %%rdx,  %%r11 ;"
+      "xorl  %%eax,%%eax;"
+      "adcx  0(%1),%%r15; movq %%r15, 0(%0); movq  56(%1),%%r15;"
+      "adcx  8(%1), %%r8; movq  %%r8, 8(%0); movq  64(%1), %%r8;"
+      "adcx 16(%1), %%r9; movq  %%r9,16(%0); movq  72(%1), %%r9;"
+      "adcx 24(%1),%%r10; movq %%r10,24(%0); movq  80(%1),%%r10;"
+      "adcx 32(%1),%%r11; movq %%r11,32(%0); movq  88(%1),%%r11;"
+      "adcx 40(%1),%%r12; movq %%r12,40(%0); movq  96(%1),%%r12;"
+      "adcx 48(%1),%%r13; movq %%r13,48(%0); movq 104(%1),%%r13;"
+      "adcx  %%rax,%%r14;"
 
-    /* [c10,c9,c8,c7] mod p  */
-    "xorq  %%r12, %%r12 ;"
-    "shldq  $32, %%rdx, %%r12 ;"
-    "shldq  $32, %%rcx, %%rdx ;"
-    "shldq  $32, %%rbx, %%rcx ;"
-    "shldq  $32, %%rax, %%rbx ;"
-    "shlq   $32, %%rax ;"
+      /**
+       * (c10c9,c9c8,c8c7,c7c13,c13c12,c12c11,c11c10) + (c6,...,c0)
+       * (   r9,  r8, r15,  r13,   r12,   r11,   r10)
+       */
+      "movq %%r10, %%rax;"
+      "shrdq $32,%%r11,%%r10;"
+      "shrdq $32,%%r12,%%r11;"
+      "shrdq $32,%%r13,%%r12;"
+      "shrdq $32,%%r15,%%r13;"
+      "shrdq $32, %%r8,%%r15;"
+      "shrdq $32, %%r9, %%r8;"
+      "shrdq $32,%%rax, %%r9;"
 
-    "addq %%r11, %%rax ;"
-    "adcq $0, 32(%0) ;"
+      "xorl  %%eax,%%eax;"
+      "adcx  0(%0),%%r10;"
+      "adcx  8(%0),%%r11;"
+      "adcx 16(%0),%%r12;"
+      "adcx 24(%0),%%r13;"
+      "adcx 32(%0),%%r15;"
+      "adcx 40(%0), %%r8;"
+      "adcx 48(%0), %%r9;"
+      "adcx  %%rax,%%r14;"
 
-    "clc ;"
-    "xorq  %%r11, %%r11 ;"
-    "adcx   (%1),  %%r8 ;"
-    "adcx  8(%1),  %%r9 ;"
-    "adcx 16(%1), %%r10 ;"
-    "adcx 24(%0), %%rax ;"
-    "adcx 32(%0), %%rbx ;"
-    "adcx 40(%0), %%rcx ;"
-    "adcx 48(%0), %%rdx ;"
-    "adcx  %%r11, %%r12 ;"
+      /**
+       * ( c7) + (c6,...,c0)
+       * (r14)
+       */
+      "movq %%r14,%%rax; shlq $32,%%rax;"
+      "clc;"
+      "adcx %%r14,%%r10; movq  $0,%%r14;"
+      "adcx %%r14,%%r11;"
+      "adcx %%r14,%%r12;"
+      "adcx %%rax,%%r13;"
+      "adcx %%r14,%%r15;"
+      "adcx %%r14, %%r8;"
+      "adcx %%r14, %%r9;"
+      "adcx %%r14,%%r14;"
 
-    /* [c7] mod p  */
-    "addq %%r12,   %%r8 ;"
-    "adcq    $0,   %%r9 ;"
-    "shlq   $32,  %%r12 ;"
-    "addq %%r12,  %%rax ;"
-    "adcq    $0,  %%rbx ;"
-
-    "movq  %%r8,   (%0) ;"
-    "movq  %%r9,  8(%0) ;"
-    "movq %%r10, 16(%0) ;"
-    "movq %%rax, 24(%0) ;"
-    "movq %%rbx, 32(%0) ;"
-    "movq %%rcx, 40(%0) ;"
-    "movq %%rdx, 48(%0) ;"
-  :
-  : "r" (c), "r" (a)
-  : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx",
-    "%r8", "%r9", "%r10", "%r11", "%r12"
-  );
+      "movq %%r14,%%rax; shlq $32,%%rax;"
+      "clc;"
+      "adcx %%r14,%%r10; movq %%r10, 0(%0); movq  $0,%%r14;"
+      "adcx %%r14,%%r11; movq %%r11, 8(%0);"
+      "adcx %%r14,%%r12; movq %%r12,16(%0);"
+      "adcx %%rax,%%r13; movq %%r13,24(%0);"
+      "adcx %%r14,%%r15; movq %%r15,32(%0);"
+      "adcx %%r14, %%r8; movq  %%r8,40(%0);"
+      "adcx %%r14, %%r9; movq  %%r9,48(%0);"
+      :
+      : "r"(c), "r"(a)
+      : "memory", "cc", "%rax", "%r8", "%r9", "%r10", "%r11", "%r12", "%r13",
+        "%r14", "%r15");
 #else
-  __asm__ __volatile__ (
-  /* [c13,c12,c11,c10] mod p  */
-  "movq  80(%1),  %%r8 ;"  "movq  %%r8, %%rax ;"
-  "movq  88(%1),  %%r9 ;"  "movq  %%r9, %%rbx ;"
-  "movq  96(%1), %%r10 ;"  "movq %%r10, %%rcx ;"
-  "movq 104(%1), %%r11 ;"  "movq %%r11, %%rdx ;"
-  "shrq $32, %%r8 ;"
-  "shlq $32, %%r8 ;"
-  "movl  $0, 84(%1) ;"
+  __asm__ __volatile__(
+      /**
+       * (   ,2C13,2C12,2C11,2C10|C10,C9,C8, C7) + (C6,...,C0)
+       * (r14, r13, r12, r11,     r10,r9,r8,r15)
+       */
+      "movq 80(%1),%%rax; movq %%rax,%%r10;"
+      "movq $0xffffffff00000000, %%r8;"
+      "andq %%r8,%%r10;"
 
-  "shrdq $32, %%rbx, %%rax ;"
-  "shrdq $32, %%rcx, %%rbx ;"
-  "shrdq $32, %%rdx, %%rcx ;"
-  "shrq  $32, %%rdx ;"
+      "movq $0,%%r14;"
+      "movq 104(%1),%%r13; shldq $1,%%r13,%%r14;"
+      "movq  96(%1),%%r12; shldq $1,%%r12,%%r13;"
+      "movq  88(%1),%%r11; shldq $1,%%r11,%%r12;"
+      "movq  72(%1), %%r9; shldq $1,%%r10,%%r11;"
+      "movq  64(%1), %%r8; shlq  $1,%%r10;"
+      "movq $0xffffffff,%%r15; andq %%r15,%%rax; orq %%rax,%%r10;"
+      "movq  56(%1),%%r15;"
 
-  "addq 24(%1),  %%r8 ;"  "movq   %%r8, 24(%0) ;"
-  "adcq 32(%1),  %%r9 ;"  "movq   %%r9, 32(%0) ;"
-  "adcq 40(%1), %%r10 ;"  "movq  %%r10, 40(%0) ;"
-  "adcq 48(%1), %%r11 ;"  "movq  %%r11, 48(%0) ;"
-  "adcq 56(%1), %%rax ;"  "movq  %%rax,   %%r8 ;"
-  "adcq 64(%1), %%rbx ;"  "movq  %%rbx,   %%r9 ;"
-  "adcq 72(%1), %%rcx ;"  "movq  %%rcx,  %%r10 ;"
-  "adcq 80(%1), %%rdx ;"  "movq  %%rdx,  %%r11 ;"
+      "addq  0(%1),%%r15; movq %%r15, 0(%0); movq  56(%1),%%r15;"
+      "adcq  8(%1), %%r8; movq  %%r8, 8(%0); movq  64(%1), %%r8;"
+      "adcq 16(%1), %%r9; movq  %%r9,16(%0); movq  72(%1), %%r9;"
+      "adcq 24(%1),%%r10; movq %%r10,24(%0); movq  80(%1),%%r10;"
+      "adcq 32(%1),%%r11; movq %%r11,32(%0); movq  88(%1),%%r11;"
+      "adcq 40(%1),%%r12; movq %%r12,40(%0); movq  96(%1),%%r12;"
+      "adcq 48(%1),%%r13; movq %%r13,48(%0); movq 104(%1),%%r13;"
+      "adcq     $0,%%r14;"
 
-  /* [c10,c9,c8,c7] mod p  */
-  "xorq  %%r12, %%r12 ;"
-  "shldq  $32, %%rdx, %%r12 ;"
-  "shldq  $32, %%rcx, %%rdx ;"
-  "shldq  $32, %%rbx, %%rcx ;"
-  "shldq  $32, %%rax, %%rbx ;"
-  "shlq   $32, %%rax ;"
+      /**
+       * (c10c9,c9c8,c8c7,c7c13,c13c12,c12c11,c11c10) + (c6,...,c0)
+       * (   r9,  r8, r15,  r13,   r12,   r11,   r10)
+       */
+      "movq %%r10, %%rax;"
+      "shrdq $32,%%r11,%%r10;"
+      "shrdq $32,%%r12,%%r11;"
+      "shrdq $32,%%r13,%%r12;"
+      "shrdq $32,%%r15,%%r13;"
+      "shrdq $32, %%r8,%%r15;"
+      "shrdq $32, %%r9, %%r8;"
+      "shrdq $32,%%rax, %%r9;"
 
-  "addq %%r11, %%rax ;"
-  "adcq $0, 32(%0) ;"
+      "addq  0(%0),%%r10;"
+      "adcq  8(%0),%%r11;"
+      "adcq 16(%0),%%r12;"
+      "adcq 24(%0),%%r13;"
+      "adcq 32(%0),%%r15;"
+      "adcq 40(%0), %%r8;"
+      "adcq 48(%0), %%r9;"
+      "adcq     $0,%%r14;"
 
-  "addq   (%1),  %%r8 ;"
-  "adcq  8(%1),  %%r9 ;"
-  "adcq 16(%1), %%r10 ;"
-  "adcq 24(%0), %%rax ;"
-  "adcq 32(%0), %%rbx ;"
-  "adcq 40(%0), %%rcx ;"
-  "adcq 48(%0), %%rdx ;"
-  "adcq     $0, %%r12 ;"
+      /**
+       * ( c7) + (c6,...,c0)
+       * (r14)
+       */
+      "movq %%r14,%%rax; shlq $32,%%rax;"
+      "addq %%r14,%%r10; movq  $0,%%r14;"
+      "adcq    $0,%%r11;"
+      "adcq    $0,%%r12;"
+      "adcq %%rax,%%r13;"
+      "adcq    $0,%%r15;"
+      "adcq    $0, %%r8;"
+      "adcq    $0, %%r9;"
+      "adcq    $0,%%r14;"
 
-  /* [c7] mod p  */
-  "addq %%r12,   %%r8 ;"
-  "adcq    $0,   %%r9 ;"
-  "shlq   $32,  %%r12 ;"
-  "addq %%r12,  %%rax ;"
-  "adcq    $0,  %%rbx ;"
-
-  "movq  %%r8,   (%0) ;"
-  "movq  %%r9,  8(%0) ;"
-  "movq %%r10, 16(%0) ;"
-  "movq %%rax, 24(%0) ;"
-  "movq %%rbx, 32(%0) ;"
-  "movq %%rcx, 40(%0) ;"
-  "movq %%rdx, 48(%0) ;"
-  :
-  : "r" (c), "r" (a)
-  : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx",
-  "%r8", "%r9", "%r10", "%r11", "%r12"
-  );
+      "movq %%r14,%%rax; shlq $32,%%rax;"
+      "addq %%r14,%%r10; movq %%r10, 0(%0);"
+      "adcq    $0,%%r11; movq %%r11, 8(%0);"
+      "adcq    $0,%%r12; movq %%r12,16(%0);"
+      "adcq %%rax,%%r13; movq %%r13,24(%0);"
+      "adcq    $0,%%r15; movq %%r15,32(%0);"
+      "adcq    $0, %%r8; movq  %%r8,40(%0);"
+      "adcq    $0, %%r9; movq  %%r9,48(%0);"
+      :
+      : "r"(c), "r"(a)
+      : "memory", "cc", "%rax", "%r8", "%r9", "%r10", "%r11", "%r12", "%r13",
+        "%r14", "%r15");
 #endif
 }
 
