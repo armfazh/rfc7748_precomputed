@@ -100,8 +100,8 @@ For running a sample program use:
 
 For running a performance benchmark (in clock cycles) use:
 ```sh
- $ make bench-cycles
- $ bin/bench-cycles
+ $ make bench
+ $ bin/bench
 ```
 
 For running the [Google benchmark](https://github.com/google/benchmark) tool use:
