@@ -555,105 +555,99 @@ void red_EltFp448_1w_x64(uint64_t *c, uint64_t *a) {
 inline void add_EltFp448_1w_x64(uint64_t *c, uint64_t *a, uint64_t *b) {
 #if __ADX__
   __asm__ __volatile__(
-    "movq   0(%2),  %%rax ;"
-    "movq   8(%2),  %%rcx ;"
-    "movq  16(%2),  %%rdx ;"
-    "movq  24(%2),  %%r8  ;"
-    "movq  32(%2),  %%r9  ;"
-    "movq  40(%2),  %%r10 ;"
-    "movq  48(%2),  %%r11 ;"
-    "clc ;"
-    "adcx   0(%1),  %%rax ;"
-    "adcx   8(%1),  %%rcx ;"
-    "adcx  16(%1),  %%rdx ;"
-    "adcx  24(%1),  %%r8  ;"
-    "adcx  32(%1),  %%r9  ;"
-    "adcx  40(%1),  %%r10 ;"
-    "adcx  48(%1),  %%r11 ;"
-    "setc    %%bl         ;"
-    "movzx   %%bl,  %%rbx ;"
-    "addq   %%rbx,  %%rax ;"
-    "adcq   $0,     %%rcx ;"
-    "shlq   $32,    %%rbx ;"
-    "addq   %%rbx,  %%r8  ;"
-    "adcq   $0,     %%r9  ;"
-    "movq   %%rax,   (%0) ;"
-    "movq   %%rcx,  8(%0) ;"
-    "movq   %%rdx, 16(%0) ;"
-    "movq   %%r8 , 24(%0) ;"
-    "movq   %%r9 , 32(%0) ;"
-    "movq   %%r10, 40(%0) ;"
-    "movq   %%r11, 48(%0) ;"
-  :
-  : "r" (c), "r" (a), "r"  (b)
-  : "memory", "cc", "%rax", "%rbx", "%rcx", "%rdx",
-    "%r8", "%r9", "%r10", "%r11"
-  );
+      "xorl %%eax, %%eax;"
+      "movq $0x100000000, %%rdx;"
+      "movq  0(%2),  %%r8; adcx  0(%1),  %%r8;"
+      "movq  8(%2),  %%r9; adcx  8(%1),  %%r9;"
+      "movq 16(%2), %%r10; adcx 16(%1), %%r10;"
+      "movq 24(%2), %%r11; adcx 24(%1), %%r11;"
+      "movq 32(%2), %%r12; adcx 32(%1), %%r12;"
+      "movq 40(%2), %%r13; adcx 40(%1), %%r13;"
+      "movq 48(%2), %%r14; adcx 48(%1), %%r14;"
+      "movq   $0x0, %%rcx; cmovc %%rdx, %%rcx;"
+      "adcx  %%rax,  %%r8;"
+      "adcx  %%rax,  %%r9;"
+      "adcx  %%rax, %%r10;"
+      "adcx  %%rcx, %%r11;"
+      "adcx  %%rax, %%r12;"
+      "adcx  %%rax, %%r13;"
+      "adcx  %%rax, %%r14;"
+      "movq   $0x0, %%rcx;"
+      "cmovc %%rdx, %%rcx;"
+      "adcx  %%rax,  %%r8; movq  %%r8,  0(%0);"
+      "adcx  %%rax,  %%r9; movq  %%r9,  8(%0);"
+      "adcx  %%rax, %%r10; movq %%r10, 16(%0);"
+      "adcx  %%rcx, %%r11; movq %%r11, 24(%0);"
+      "adcx  %%rax, %%r12; movq %%r12, 32(%0);"
+      "adcx  %%rax, %%r13; movq %%r13, 40(%0);"
+      "adcx  %%rax, %%r14; movq %%r14, 48(%0);"
+      :
+      : "r"(c), "r"(a), "r"(b)
+      : "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11",
+        "%r12", "%r13", "%r14");
 #else
   __asm__ __volatile__(
-  "movq  $0x100000000, %%rdx;"
-  "movq  0(%2),  %%r8; addq  0(%1),  %%r8;"
-  "movq  8(%2),  %%r9; adcq  8(%1),  %%r9;"
-  "movq 16(%2), %%r10; adcq 16(%1), %%r10;"
-  "movq 24(%2), %%r11; adcq 24(%1), %%r11;"
-  "movq 32(%2), %%r12; adcq 32(%1), %%r12;"
-  "movq 40(%2), %%r13; adcq 40(%1), %%r13;"
-  "movq 48(%2), %%r14; adcq 48(%1), %%r14;"
-  "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
-  "adcq     $0,  %%r8;"
-  "adcq     $0,  %%r9;"
-  "adcq     $0, %%r10;"
-  "adcq  %%rcx, %%r11;"
-  "adcq     $0, %%r12;"
-  "adcq     $0, %%r13;"
-  "adcq     $0, %%r14;"
-  "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
-  "adcq     $0,  %%r8; movq  %%r8,  0(%0);"
-  "adcq     $0,  %%r9; movq  %%r9,  8(%0);"
-  "adcq     $0, %%r10; movq %%r10, 16(%0);"
-  "adcq  %%rcx, %%r11; movq %%r11, 24(%0);"
-  "adcq     $0, %%r12; movq %%r12, 32(%0);"
-  "adcq     $0, %%r13; movq %%r13, 40(%0);"
-  "adcq     $0, %%r14; movq %%r14, 48(%0);"
-  :
-  : "r" (c), "r" (a), "r"  (b)
-  : "memory", "cc", "%rax", "%rcx", "%rdx", "%r8",
-  "%r9", "%r10", "%r11", "%r12", "%r13", "%r14"
-  );
+      "movq $0x100000000, %%rdx;"
+      "movq  0(%2),  %%r8; addq  0(%1),  %%r8;"
+      "movq  8(%2),  %%r9; adcq  8(%1),  %%r9;"
+      "movq 16(%2), %%r10; adcq 16(%1), %%r10;"
+      "movq 24(%2), %%r11; adcq 24(%1), %%r11;"
+      "movq 32(%2), %%r12; adcq 32(%1), %%r12;"
+      "movq 40(%2), %%r13; adcq 40(%1), %%r13;"
+      "movq 48(%2), %%r14; adcq 48(%1), %%r14;"
+      "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
+      "adcq     $0,  %%r8;"
+      "adcq     $0,  %%r9;"
+      "adcq     $0, %%r10;"
+      "adcq  %%rcx, %%r11;"
+      "adcq     $0, %%r12;"
+      "adcq     $0, %%r13;"
+      "adcq     $0, %%r14;"
+      "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
+      "adcq     $0,  %%r8; movq  %%r8,  0(%0);"
+      "adcq     $0,  %%r9; movq  %%r9,  8(%0);"
+      "adcq     $0, %%r10; movq %%r10, 16(%0);"
+      "adcq  %%rcx, %%r11; movq %%r11, 24(%0);"
+      "adcq     $0, %%r12; movq %%r12, 32(%0);"
+      "adcq     $0, %%r13; movq %%r13, 40(%0);"
+      "adcq     $0, %%r14; movq %%r14, 48(%0);"
+      :
+      : "r"(c), "r"(a), "r"(b)
+      : "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11",
+        "%r12", "%r13", "%r14");
 #endif
 }
 
 inline void sub_EltFp448_1w_x64(uint64_t *c, uint64_t *a, uint64_t *b) {
   __asm__ __volatile__(
-  "movq  $0x100000000, %%rdx;"
-  "movq  0(%1),  %%r8; subq  0(%2),  %%r8;"
-  "movq  8(%1),  %%r9; sbbq  8(%2),  %%r9;"
-  "movq 16(%1), %%r10; sbbq 16(%2), %%r10;"
-  "movq 24(%1), %%r11; sbbq 24(%2), %%r11;"
-  "movq 32(%1), %%r12; sbbq 32(%2), %%r12;"
-  "movq 40(%1), %%r13; sbbq 40(%2), %%r13;"
-  "movq 48(%1), %%r14; sbbq 48(%2), %%r14;"
-  "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
-  "sbbq     $0,  %%r8;"
-  "sbbq     $0,  %%r9;"
-  "sbbq     $0, %%r10;"
-  "sbbq  %%rcx, %%r11;"
-  "sbbq     $0, %%r12;"
-  "sbbq     $0, %%r13;"
-  "sbbq     $0, %%r14;"
-  "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
-  "sbbq     $0,  %%r8; movq  %%r8,  0(%0);"
-  "sbbq     $0,  %%r9; movq  %%r9,  8(%0);"
-  "sbbq     $0, %%r10; movq %%r10, 16(%0);"
-  "sbbq  %%rcx, %%r11; movq %%r11, 24(%0);"
-  "sbbq     $0, %%r12; movq %%r12, 32(%0);"
-  "sbbq     $0, %%r13; movq %%r13, 40(%0);"
-  "sbbq     $0, %%r14; movq %%r14, 48(%0);"
-  :
-  : "r" (c), "r" (a), "r"  (b)
-  : "memory", "cc", "%rax", "%rcx", "%rdx", "%r8",
-  "%r9", "%r10", "%r11", "%r12", "%r13", "%r14"
-  );
+      "movq  $0x100000000, %%rdx;"
+      "movq  0(%1),  %%r8; subq  0(%2),  %%r8;"
+      "movq  8(%1),  %%r9; sbbq  8(%2),  %%r9;"
+      "movq 16(%1), %%r10; sbbq 16(%2), %%r10;"
+      "movq 24(%1), %%r11; sbbq 24(%2), %%r11;"
+      "movq 32(%1), %%r12; sbbq 32(%2), %%r12;"
+      "movq 40(%1), %%r13; sbbq 40(%2), %%r13;"
+      "movq 48(%1), %%r14; sbbq 48(%2), %%r14;"
+      "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
+      "sbbq     $0,  %%r8;"
+      "sbbq     $0,  %%r9;"
+      "sbbq     $0, %%r10;"
+      "sbbq  %%rcx, %%r11;"
+      "sbbq     $0, %%r12;"
+      "sbbq     $0, %%r13;"
+      "sbbq     $0, %%r14;"
+      "movq     $0, %%rcx; cmovc %%rdx, %%rcx;"
+      "sbbq     $0,  %%r8; movq  %%r8,  0(%0);"
+      "sbbq     $0,  %%r9; movq  %%r9,  8(%0);"
+      "sbbq     $0, %%r10; movq %%r10, 16(%0);"
+      "sbbq  %%rcx, %%r11; movq %%r11, 24(%0);"
+      "sbbq     $0, %%r12; movq %%r12, 32(%0);"
+      "sbbq     $0, %%r13; movq %%r13, 40(%0);"
+      "sbbq     $0, %%r14; movq %%r14, 48(%0);"
+      :
+      : "r"(c), "r"(a), "r"(b)
+      : "memory", "cc", "%rax", "%rcx", "%rdx", "%r8", "%r9", "%r10", "%r11",
+        "%r12", "%r13", "%r14");
 }
 
 void mul_a24_EltFp448_1w_x64(uint64_t *c, uint64_t *a) {
