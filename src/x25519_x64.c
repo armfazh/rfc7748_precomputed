@@ -209,11 +209,11 @@ static void x25519_keygen_precmp_x64(argKey session_key, argKey private_key) {
   Zr1[0] = 1;
   Zr2[0] = 1;
 
-  /* G-S */
-  Ur2[3] = 0x1eaecdeee27cab34;
-  Ur2[2] = 0xadc7a0b9235d48e2;
-  Ur2[1] = 0xbbf095ae14b2edf8;
-  Ur2[0] = 0x7e94e1fec82faabd;
+  /* P-S */
+  Ur2[3] = 0x215132111d8354cb;
+  Ur2[2] = 0x52385f46dca2b71d;
+  Ur2[1] = 0x440f6a51eb4d1207;
+  Ur2[0] = 0x816b1e0137d48290;
 
   /* main-loop */
   const int ite[4] = {64, 64, 64, 63};
